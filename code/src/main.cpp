@@ -1,4 +1,5 @@
 #include "headers/login.h"
+#include "headers/register.h"
 
 #include <QApplication>
 

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Register</class>
+ <widget class="QWidget" name="Register">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>FileBox</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/images/images.qrc">
+    <normaloff>:/images/FileBox_1.png</normaloff>:/images/FileBox_1.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+	font-size: 18px;
+	font-family: Trajan; 
+}
+
+#btn_register{
+	border-radius: 15px;
+	background: red;
+	color: white;
+}
+
+#btn_register:hover{
+	border-radius: 15px;
+	background: #800000;
+	color: #333;
+}
+
+QFrame{
+	background: #333;
+	border-radius: 20px;
+}
+
+QPushButton{
+	border-radius: 60px;
+	background: red;
+}
+
+QLineEdit{
+	background: transparent;
+	border: none;
+	color: #717072; 
+	border-bottom: 1px solid #717072;
+}
+
+#register_l{
+	color: white;
+	font-size: 26px;
+}
+
+#Register{
+	background-image: url(:/images/bg.png);
+}</string>
+  </property>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>80</y>
+     <width>480</width>
+     <height>450</height>
+    </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>480</width>
+     <height>450</height>
+    </size>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QPushButton" name="btn_register">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>370</y>
+      <width>421</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>REGISTER</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="username_le">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>100</y>
+      <width>421</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>Username</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="password_le">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>170</y>
+      <width>421</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Password</enum>
+    </property>
+    <property name="placeholderText">
+     <string>Password</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="rpassword_le">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>240</y>
+      <width>421</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="echoMode">
+     <enum>QLineEdit::Password</enum>
+    </property>
+    <property name="placeholderText">
+     <string>Confirm Password</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="register_l">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>30</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Register</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../../resources/images/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>
