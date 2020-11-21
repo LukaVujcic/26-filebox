@@ -88,7 +88,7 @@ QLineEdit{
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QPushButton" name="btn_register">
+   <widget class="QPushButton" name="pbRegister">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -101,7 +101,7 @@ QLineEdit{
      <string>REGISTER</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="username_le">
+   <widget class="QLineEdit" name="leUsername">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -114,7 +114,7 @@ QLineEdit{
      <string>Username</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="password_le">
+   <widget class="QLineEdit" name="lePassword">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -133,7 +133,7 @@ QLineEdit{
      <string>Password</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="rpassword_le">
+   <widget class="QLineEdit" name="leConfirmPassword">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -149,7 +149,7 @@ QLineEdit{
      <string>Confirm Password</string>
     </property>
    </widget>
-   <widget class="QLabel" name="register_l">
+   <widget class="QLabel" name="lblRegister">
     <property name="geometry">
      <rect>
       <x>200</x>

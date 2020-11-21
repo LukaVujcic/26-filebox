@@ -13,7 +13,8 @@ Login::~Login()
     delete ui;
 }
 
-void Login::paintEvent(QPaintEvent*){
+void Login::paintEvent(QPaintEvent*)
+{
     QStyleOption opt;
     opt.init(this);
     QPainter p(this);

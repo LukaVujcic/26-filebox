@@ -1,6 +1,7 @@
 #include "headers/login.h"
 #include "headers/register.h"
 #include "headers/filebox.h"
+
 #include <QApplication>
 
 int main(int argc, char *argv[])

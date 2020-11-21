@@ -2,6 +2,8 @@
 #define FILEBOX_H
 
 #include <QWidget>
+#include <QPainter>
+#include <QStyleOption>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class FileBox; }
@@ -14,6 +16,8 @@ class FileBox : public QWidget
 public:
     FileBox(QWidget *parent = nullptr);
     ~FileBox();
+
+    void paintEvent(QPaintEvent*);
 
 private:
     Ui::FileBox *ui;

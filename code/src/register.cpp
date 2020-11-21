@@ -1,5 +1,6 @@
 #include "headers/register.h"
 #include "ui_register.h"
+
 #include <QStyleOption>
 #include <QPainter>
 

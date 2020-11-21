@@ -29,7 +29,7 @@
    <string>FileBox</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources/images/images.qrc">
+   <iconset resource="../../resources/images/images.qrc">
     <normaloff>:/images/FileBox_1.png</normaloff>:/images/FileBox_1.png</iconset>
   </property>
   <property name="autoFillBackground">
@@ -97,7 +97,7 @@ QLineEdit{
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QLabel" name="lbLogin">
+   <widget class="QLabel" name="lblLogin">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -136,7 +136,7 @@ QLineEdit{
      <string>Register</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="leUsr">
+   <widget class="QLineEdit" name="leUsername">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -152,7 +152,7 @@ QLineEdit{
      <string>Username</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lePsw">
+   <widget class="QLineEdit" name="lePassword">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -193,7 +193,7 @@ QLineEdit{
   </widget>
  </widget>
  <resources>
-  <include location="../resources/images/images.qrc"/>
+  <include location="../../resources/images/images.qrc"/>
  </resources>
  <connections/>
 </ui>
