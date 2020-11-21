@@ -29,13 +29,13 @@
 	font-family: Trajan; 
 }
 
-#btn_register{
+#pbRegister{
 	border-radius: 15px;
 	background: red;
 	color: white;
 }
 
-#btn_register:hover{
+#pbRegister:hover{
 	border-radius: 15px;
 	background: #800000;
 	color: #333;
@@ -58,7 +58,7 @@ QLineEdit{
 	border-bottom: 1px solid #717072;
 }
 
-#register_l{
+#lblRegister{
 	color: white;
 	font-size: 26px;
 }
