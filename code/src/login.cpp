@@ -21,3 +21,15 @@ void Login::paintEvent(QPaintEvent*)
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
+
+void Login::on_pbRegister_clicked()
+{
+   hide();
+   reg->show();
+
+
+}
+
+void Login::setRegister(Register *r){
+    reg = r;
+}

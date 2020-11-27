@@ -71,7 +71,8 @@ QLineEdit{
 
 #Register{
 	background-image: url(:/images/bg.png);
-}</string>
+}
+</string>
   </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">

@@ -7,7 +7,11 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Login w;
-    w.show();
+    Login l;
+    Register r(&l);
+    r.setWindowFlag(Qt::Window);
+    l.setRegister(&r);
+    l.show();
+
     return a.exec();
 }
