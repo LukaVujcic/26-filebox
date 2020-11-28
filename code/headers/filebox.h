@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QStyleOption>
+#include "login.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class FileBox; }

@@ -1,4 +1,5 @@
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -8,16 +9,22 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+INCLUDEPATH += headers
+
 SOURCES += \
     src/login.cpp \
     src/main.cpp \
     src/register.cpp \
-    src/filebox.cpp
+    src/filebox.cpp \
+    src/tcprunnable.cpp \
+    src/tcpserver.cpp
 
 HEADERS += \
     headers/login.h \
     headers/register.h \
-    headers/filebox.h
+    headers/filebox.h \
+    headers/tcprunnable.h \
+    headers/tcpserver.h
 
 FORMS += \
     forms/login.ui \
