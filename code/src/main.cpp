@@ -7,7 +7,15 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Login w;
-    w.show();
+
+    FileBox fileBox;
+    Login login(&fileBox);
+    Register reg(&login);
+
+    login.setRegister(&reg);
+    fileBox.setFormLogin(&login);
+
+    login.show();
+
     return a.exec();
 }

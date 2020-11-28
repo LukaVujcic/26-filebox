@@ -9,6 +9,7 @@ Register::Register(QWidget *parent)
     , ui(new Ui::Register)
 {
     ui->setupUi(this);
+    setWindowFlag(Qt::Window);
 }
 
 Register::~Register()
@@ -24,3 +25,19 @@ void Register::paintEvent(QPaintEvent *)
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
+
+void Register::on_pbRegister_clicked()
+{
+    QString username = ui->leUsername->text();
+    QString password = ui->lePassword->text();
+    QString confirmPassword = ui->leConfirmPassword->text();
+
+    if(username.size() == 0) return;
+    if(password.size() == 0) return;
+    if(confirmPassword.size() == 0) return;
+    if(password != confirmPassword) return;
+
+
+    hide();
+    parentWidget()->show();
+}

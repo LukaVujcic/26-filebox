@@ -17,6 +17,7 @@ FileBox::~FileBox()
     delete ui->twLocalFiles->model();
     delete ui;
 }
+
 void FileBox::paintEvent(QPaintEvent*)
 {
     QStyleOption opt;
@@ -25,7 +26,9 @@ void FileBox::paintEvent(QPaintEvent*)
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
+void FileBox::setFormLogin(Login *l){
+    login = l;
+}
 void FileBox::on_pbUpload_clicked()
 {
 }
-

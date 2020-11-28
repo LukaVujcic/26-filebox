@@ -16,12 +16,17 @@ class FileBox : public QWidget
 public:
     FileBox(QWidget *parent = nullptr);
     ~FileBox();
+
     void paintEvent(QPaintEvent*);
+
+    void setFormLogin(Login *l);
 
 private:
     Ui::FileBox *ui;
 
+    Login *login;
 private slots:
     void on_pbUpload_clicked();
+
 };
 #endif // FILEBOX_H
