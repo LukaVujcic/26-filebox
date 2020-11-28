@@ -1,6 +1,6 @@
-#include "headers/login.h"
-#include "headers/register.h"
-#include "headers/filebox.h"
+#include "login.h"
+#include "register.h"
+#include "filebox.h"
 
 #include <QApplication>
 

@@ -1,4 +1,4 @@
-#include "headers/register.h"
+#include "register.h"
 #include "ui_register.h"
 
 #include <QStyleOption>

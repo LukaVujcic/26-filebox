@@ -79,7 +79,7 @@ QPushButton{
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QTreeView" name="twLocalFiles">
+  <widget class="FileSystemTreeView" name="twLocalFiles">
    <property name="geometry">
     <rect>
      <x>53</x>
@@ -124,7 +124,7 @@ QPushButton{
     <string>Paste</string>
    </property>
   </widget>
-  <widget class="QTreeView" name="twRemoteFiles">
+  <widget class="FileSystemTreeView" name="twRemoteFiles">
    <property name="geometry">
     <rect>
      <x>422</x>
@@ -215,6 +215,13 @@ QPushButton{
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FileSystemTreeView</class>
+   <extends>QTreeView</extends>
+   <header>filesystemtreeview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../resources/images/images.qrc"/>
  </resources>
