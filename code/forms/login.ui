@@ -77,6 +77,11 @@ QLineEdit{
 	border:none;
 	color:#717072;
 	border-bottom:1px solid #717072;
+}
+
+#lblLogin{
+	color: white;
+	font-size: 26px;
 }</string>
   </property>
   <widget class="QFrame" name="frame">
@@ -126,7 +131,7 @@ QLineEdit{
      </rect>
     </property>
     <property name="text">
-     <string>Login</string>
+     <string>LOGIN</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pbRegister">
@@ -139,7 +144,7 @@ QLineEdit{
      </rect>
     </property>
     <property name="text">
-     <string>Register</string>
+     <string>REGISTER</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="leUsername">

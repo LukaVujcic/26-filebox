@@ -5,6 +5,8 @@
 #include <QPainter>
 #include <QStyleOption>
 
+#include "login.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class FileBox; }
 QT_END_NAMESPACE
@@ -19,7 +21,13 @@ public:
 
     void paintEvent(QPaintEvent*);
 
+    void setFormLogin(Login *l);
+
 private:
     Ui::FileBox *ui;
+
+    Login *login;
+
+
 };
 #endif // FILEBOX_H
