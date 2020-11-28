@@ -14,6 +14,35 @@
 class TCPServer : public QTcpServer
 {
     Q_OBJECT
+public:
+    explicit TCPServer(QObject *parent = nullptr);
+    ~TCPServer();
+
+    enum ThreadMode
+    {
+        MODE_SINGLE = 0,
+        MODE_POOLED = 1,
+        MODE_THREADED = 2
+    };
+
+    void setMaxThreads(int value);
+    void setMaxConnections(int value);
+    void setConnectionTimeout(int value);
+    void setMode(ThreadMode value);
+    void listen(const QHostAddress &address, quint16 port);
+    void close();
+
+    QStringList getAddresses();
+
+signals:
+    void connecting(qintptr handle, TCPRunnable *runnable, TCPConnection* connection);
+    void closing();
+    void idle(int value);
+
+public slots:
+    void started();
+    void finished();
+    void timeout();
 
 protected:
     ThreadMode threadMode = MODE_SINGLE;

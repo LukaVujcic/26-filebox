@@ -41,6 +41,7 @@ protected:
     QReadWriteLock lock;
 
     TCPConnection *createConnection();
+
     void addSignals(TCPConnection* connection);
 };
 

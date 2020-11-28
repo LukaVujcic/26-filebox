@@ -16,6 +16,7 @@ SOURCES += \
     src/main.cpp \
     src/register.cpp \
     src/filebox.cpp \
+    src/tcpconnection.cpp \
     src/tcprunnable.cpp \
     src/tcpserver.cpp
 
@@ -23,6 +24,7 @@ HEADERS += \
     headers/login.h \
     headers/register.h \
     headers/filebox.h \
+    headers/tcpconnection.h \
     headers/tcprunnable.h \
     headers/tcpserver.h
 

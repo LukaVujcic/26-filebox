@@ -1,5 +1,121 @@
 #include "tcpserver.h"
 
+TCPServer::TCPServer(QObject *parent) : QTcpServer(parent)
+{
+    qDebug() << this << "created";
+
+    connect(&timer, &QTimer::timeout, this, &TCPServer::timeout);
+}
+
+TCPServer::~TCPServer()
+{
+    qDebug() << this << "destroyed";
+}
+
+void TCPServer::setMaxThreads(int value)
+{
+    qDebug() << this << "Setting max threads to: " << value;
+    QThreadPool::globalInstance()->setMaxThreadCount(value);
+}
+
+void TCPServer::setMaxConnections(int value)
+{
+    qDebug() << this << "Setting max connections to: " << value;
+    maxConnections = value;
+}
+
+void TCPServer::setConnectionTimeout(int value)
+{
+    qDebug() << this << "Setting the connection timeout to: " << value;
+    connectionTimeout = value;
+}
+
+void TCPServer::setMode(TCPServer::ThreadMode value)
+{
+    qDebug() << this << "Setting thread mode to: " << value;
+    threadMode = value;
+}
+
+void TCPServer::listen(const QHostAddress &address, quint16 port)
+{
+    if(!QTcpServer::listen(address,port))
+    {
+        qCritical() << this << errorString();
+        return;
+    }
+
+    qDebug() << this << "Listing on port:" << port;
+
+    switch (threadMode)
+    {
+    case MODE_SINGLE:
+        startSingle();
+        break;
+    case MODE_POOLED:
+        startPooled();
+        break;
+    case MODE_THREADED:
+        startThreaded();
+        break;
+    }
+
+    timer.start(1000);
+}
+
+void TCPServer::close()
+{
+    qDebug() << this << "Closing Server, and all open connections.";
+    emit closing();
+    QTcpServer::close();
+    timer.stop();
+    qDebug() << this << "Server has closed.";
+}
+
+QStringList TCPServer::getAddresses()
+{
+    QStringList lst;
+
+    foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
+    {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
+        {
+            lst.append(address.toString());
+        }
+    }
+
+    return lst;
+}
+
+void TCPServer::started()
+{
+    TCPRunnable *runnable = static_cast<TCPRunnable*>(sender());
+
+    if(!runnable)
+        return;
+
+    qDebug() << runnable << "has started";
+}
+
+void TCPServer::finished()
+{
+    qDebug() << this << "finished" << sender();
+
+    TCPRunnable *runnable = static_cast<TCPRunnable*>(sender());
+
+    if(!runnable)
+        return;
+
+    qDebug() << runnable << "has finished, removing from list";
+
+    runnables.removeAll(runnable);
+    runnable->deleteLater();
+}
+
+void TCPServer::timeout()
+{
+    if(connectionTimeout > 0) emit idle(connectionTimeout);
+}
+
 TCPRunnable *TCPServer::createRunnable()
 {
     qDebug() << this << "Creating runnable...";
@@ -26,17 +142,17 @@ void TCPServer::incomingConnection(qintptr handle)
 
     switch (threadMode)
     {
-        case MODE_SINGLE:
-            acceptSingle(handle);
-            break;
-        case MODE_POOLED:
-            acceptPooled(handle);
-            break;
-        case MODE_THREADED:
-            acceptThreaded(handle);
-            break;
-        default:
-            break;
+    case MODE_SINGLE:
+        acceptSingle(handle);
+        break;
+    case MODE_POOLED:
+        acceptPooled(handle);
+        break;
+    case MODE_THREADED:
+        acceptThreaded(handle);
+        break;
+    default:
+        break;
     }
 }
 
