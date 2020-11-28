@@ -5,6 +5,8 @@
 #include <QPainter>
 #include <QStyleOption>
 #include "filesystemtreeview.h"
+#include "login.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class FileBox; }
 QT_END_NAMESPACE
