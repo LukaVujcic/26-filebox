@@ -1,5 +1,5 @@
-QT       += core gui
-QT       += network
+QT += core gui
+QT += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,7 +16,7 @@ SOURCES += \
     src/main.cpp \
     src/register.cpp \
     src/filebox.cpp \
-    src/filesystemtreeview.cpp
+    src/filesystemtreeview.cpp \
     src/tcpconnection.cpp \
     src/tcprunnable.cpp \
     src/tcpserver.cpp
@@ -25,7 +25,7 @@ HEADERS += \
     headers/login.h \
     headers/register.h \
     headers/filebox.h \
-    headers/filesystemtreeview.h
+    headers/filesystemtreeview.h \
     headers/tcpconnection.h \
     headers/tcprunnable.h \
     headers/tcpserver.h
