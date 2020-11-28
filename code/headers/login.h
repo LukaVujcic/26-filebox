@@ -27,9 +27,11 @@ public:
 private slots:
     void on_pbRegister_clicked();
 
+    void on_pbLogin_clicked();
+
 private:
     Ui::Login *ui;
 
-    Register *reg;
+    Register *m_reg;
 };
 #endif // LOGIN_H

@@ -21,3 +21,7 @@ void FileBox::paintEvent(QPaintEvent*)
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
+void FileBox::setFormLogin(Login *l){
+    login = l;
+}
+

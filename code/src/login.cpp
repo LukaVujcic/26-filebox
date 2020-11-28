@@ -6,6 +6,7 @@ Login::Login(QWidget *parent)
     , ui(new Ui::Login)
 {
     ui->setupUi(this);
+    setWindowFlag(Qt::Window);
 }
 
 Login::~Login()
@@ -25,11 +26,36 @@ void Login::paintEvent(QPaintEvent*)
 void Login::on_pbRegister_clicked()
 {
    hide();
-   reg->show();
-
-
+   m_reg->show();
 }
 
 void Login::setRegister(Register *r){
-    reg = r;
+    m_reg = r;
 }
+
+void Login::on_pbLogin_clicked()
+{
+    QString username = ui->leUsername->text();
+    QString password = ui->lePassword->text();
+    QString IPAddress = ui->leIP->text();
+
+
+    if(username.size() == 0) return;
+    if(password.size() == 0) return;
+    if(IPAddress.size() == 0) return;
+
+    hide();
+    parentWidget()->show();
+}
+
+
+
+
+
+
+
+
+
+
+
+
