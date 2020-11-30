@@ -48,15 +48,15 @@ void TCPServer::listen(const QHostAddress &address, quint16 port)
 
     switch (threadMode)
     {
-    case MODE_SINGLE:
-        startSingle();
-        break;
-    case MODE_POOLED:
-        startPooled();
-        break;
-    case MODE_THREADED:
-        startThreaded();
-        break;
+        case MODE_SINGLE:
+            startSingle();
+            break;
+        case MODE_POOLED:
+            startPooled();
+            break;
+        case MODE_THREADED:
+            startThreaded();
+            break;
     }
 
     timer.start(1000);
@@ -86,6 +86,36 @@ QStringList TCPServer::getAddresses()
     return lst;
 }
 
+void TCPServer::incomingConnection(qintptr handle)
+{
+    int count = connections();
+
+    if(maxConnections != 0 && count >= maxConnections)
+    {
+        qDebug() << this << "************************ Rejecting connection:" << handle;
+        qDebug() << this << " Count: " << count << " Max:" << maxConnections;
+
+        reject(handle);
+
+        return;
+    }
+
+    switch (threadMode)
+    {
+        case MODE_SINGLE:
+            acceptSingle(handle);
+            break;
+        case MODE_POOLED:
+            acceptPooled(handle);
+            break;
+        case MODE_THREADED:
+            acceptThreaded(handle);
+            break;
+        default:
+            break;
+    }
+}
+
 void TCPServer::started()
 {
     TCPRunnable *runnable = static_cast<TCPRunnable*>(sender());
@@ -112,7 +142,7 @@ void TCPServer::finished()
 }
 
 void TCPServer::timeout()
-{
+{ 
     if(connectionTimeout > 0) emit idle(connectionTimeout);
 }
 
@@ -124,36 +154,6 @@ TCPRunnable *TCPServer::createRunnable()
     runnable->setAutoDelete(false);
 
     return runnable;
-}
-
-void TCPServer::incomingConnection(qintptr handle)
-{
-    int count = connections();
-
-    if(maxConnections != 0 && count >= maxConnections)
-    {
-        qDebug() << this << "************************ Rejecting connection:" << handle;
-        qDebug() << this << " Count: " << count << " Max:" << maxConnections;
-
-        reject(handle);
-
-        return;
-    }
-
-    switch (threadMode)
-    {
-    case MODE_SINGLE:
-        acceptSingle(handle);
-        break;
-    case MODE_POOLED:
-        acceptPooled(handle);
-        break;
-    case MODE_THREADED:
-        acceptThreaded(handle);
-        break;
-    default:
-        break;
-    }
 }
 
 void TCPServer::startRunnable(TCPRunnable *runnable)

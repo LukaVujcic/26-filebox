@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FileBox</class>
+ <widget class="QWidget" name="FileBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>730</width>
+    <height>480</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>900</width>
+    <height>480</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>FileBox</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/images/images.qrc">
+    <normaloff>:/images/FileBox_1.png</normaloff>:/images/FileBox_1.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+	font-family: Trajan;
+}
+
+#FileBox {
+	background: url(:/images/bg.png);
+}
+
+QPushButton{
+        border-radius: 5px;
+        background: red;
+		color: white;
+}
+
+QPushButton:hover{
+	background: #800000;
+	color: #333;
+}</string>
+  </property>
+  <widget class="QPushButton" name="pbUpload">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>53</x>
+     <y>35</y>
+     <width>80</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Upload</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblLocalFiles">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>60</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::RightToLeft</enum>
+   </property>
+   <property name="text">
+    <string>My local files</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="FileSystemTreeView" name="twLocalFiles">
+   <property name="geometry">
+    <rect>
+     <x>53</x>
+     <y>79</y>
+     <width>341</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::ExtendedSelection</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbCopy">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>419</y>
+     <width>80</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbPaste">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>380</y>
+     <width>80</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </widget>
+  <widget class="FileSystemTreeView" name="twRemoteFiles">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>79</y>
+     <width>341</width>
+     <height>276</height>
+    </rect>
+   </property>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::ExtendedSelection</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbDelete">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>419</y>
+     <width>80</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbCut">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>380</y>
+     <width>80</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblRemoteFiles">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>60</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>My FileBox files</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbNewFolder">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>35</y>
+     <width>80</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>New Folder</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbDownload">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>35</y>
+     <width>80</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Download</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FileSystemTreeView</class>
+   <extends>QTreeView</extends>
+   <header>filesystemtreeview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../resources/images/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -15,11 +15,10 @@ class TCPServer : public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit TCPServer(QObject *parent = nullptr);
+    explicit TCPServer(QObject *parent = 0);
     ~TCPServer();
 
-    enum ThreadMode
-    {
+    enum ThreadMode {
         MODE_SINGLE = 0,
         MODE_POOLED = 1,
         MODE_THREADED = 2

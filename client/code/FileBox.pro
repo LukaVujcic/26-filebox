@@ -16,19 +16,13 @@ SOURCES += \
     src/main.cpp \
     src/register.cpp \
     src/filebox.cpp \
-    src/filesystemtreeview.cpp \
-    src/tcpconnection.cpp \
-    src/tcprunnable.cpp \
-    src/tcpserver.cpp
+    src/filesystemtreeview.cpp 
 
 HEADERS += \
     headers/login.h \
     headers/register.h \
     headers/filebox.h \
-    headers/filesystemtreeview.h \
-    headers/tcpconnection.h \
-    headers/tcprunnable.h \
-    headers/tcpserver.h
+    headers/filesystemtreeview.h 
 
 FORMS += \
     forms/login.ui \
