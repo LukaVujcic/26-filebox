@@ -1,6 +1,6 @@
 #include "filebox.h"
 #include "ui_filebox.h"
-
+#include "tcpclient.h"
 FileBox::FileBox(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FileBox)
@@ -31,4 +31,7 @@ void FileBox::setFormLogin(Login *l){
 }
 void FileBox::on_pbUpload_clicked()
 {
+    TCPClient socket("127.0.0.1",5000);
+    auto [folders,files]=ui->twLocalFiles->getSelectedFiles();
+    socket.close();
 }
