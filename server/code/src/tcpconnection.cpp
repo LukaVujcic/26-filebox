@@ -56,7 +56,6 @@ void TCPConnection::accept(qintptr descriptor)
 void TCPConnection::connected()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
-
     if(!socket)
         return;
 
@@ -68,7 +67,8 @@ void TCPConnection::connected()
 void TCPConnection::disconnected()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
-    if(!socket) return;
+    if(!socket)
+        return;
 
     qDebug() << this << socket << " disconnected";
 
@@ -80,32 +80,58 @@ void TCPConnection::disconnected()
     emit closed();
 }
 
-bool is_upload(QByteArray& msg)
+bool TCPConnection::is_upload_request(QByteArray& msg)
 {
     return !QString(msg).compare(("UPLOAD"));
 }
 
-bool create_folder(QByteArray& msg)
+bool TCPConnection::is_new_folder_request(QByteArray& msg)
 {
     return !QString(msg).compare(("NEW FOLDER"));
+}
+
+bool TCPConnection::is_cut_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("CUT"));
+}
+
+bool TCPConnection::is_copy_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("COPY"));
+}
+
+bool TCPConnection::is_paste_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("PASTE"));
 }
 
 void TCPConnection::readyRead()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
-    if(!socket) return;
-
+    if(!socket)
+        return;
 
     QByteArray data = socket->readLine();
 
-    if(is_upload(data))
+    if(is_upload_request(data))
     {
-        qDebug()<<"Uploading file.... "<<data;
+        qDebug() << "Uploading content... " << data;
     }
-
-    else if(create_folder(data))
+    else if(is_new_folder_request(data))
     {
-        qDebug()<<"Creating new folder.... "<<data;
+        qDebug() << "Creating new folder.... " << data;
+    }
+    else if(is_cut_request(data))
+    {
+        qDebug() << "Cutting folder(s)... " << data;
+    }
+    else if(is_copy_request(data))
+    {
+        qDebug() << "Copying folder(s)... " << data;
+    }
+    else
+    {
+        qDebug() << "Pasting folder(s)... " << data;
     }
 
     qDebug() << this << socket << " TCPConnection::readyRead" << data;
@@ -116,7 +142,8 @@ void TCPConnection::readyRead()
 void TCPConnection::bytesWritten(qint64 bytes)
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
-    if(!socket) return;
+    if(!socket)
+        return;
 
     qDebug() << socket << " bytesWritten " << bytes;
     active();
@@ -125,7 +152,8 @@ void TCPConnection::bytesWritten(qint64 bytes)
 void TCPConnection::stateChanged(QAbstractSocket::SocketState socketState)
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
-    if(!socket) return;
+    if(!socket)
+        return;
 
     qDebug() << socket << " stateChanged " << socketState;
     qDebug() << socket << socket->readAll()<<"\n";
@@ -135,7 +163,6 @@ void TCPConnection::stateChanged(QAbstractSocket::SocketState socketState)
 void TCPConnection::error(QAbstractSocket::SocketError socketError)
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
-
     if(!socket)
         return;
 
