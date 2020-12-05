@@ -1,20 +1,32 @@
 #include "filebox.h"
 #include "ui_filebox.h"
+#include "tcpclient.h"
+
+#include <QMessageBox>
 
 FileBox::FileBox(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FileBox)
 {
    ui->setupUi(this);
-   QFileSystemModel *model = new QFileSystemModel;
-   model->setRootPath("");
-   ui->twLocalFiles->setModel(model);
-   ui->twLocalFiles->setRootIndex(model->index(""));
+
+   QFileSystemModel *modelLocal = new QFileSystemModel;
+   QFileSystemModel *modelRemote = new QFileSystemModel;
+
+   modelLocal->setRootPath("");
+   modelRemote->setRootPath("");
+
+   ui->twLocalFiles->setModel(modelLocal);
+   ui->twLocalFiles->setRootIndex(modelLocal->index(""));
+
+   ui->twRemoteFiles->setModel(modelRemote);
+   ui->twRemoteFiles->setRootIndex(modelRemote->index(""));
 }
 
 FileBox::~FileBox()
 {
     delete ui->twLocalFiles->model();
+    delete ui->twRemoteFiles->model();
     delete ui;
 }
 
@@ -26,9 +38,23 @@ void FileBox::paintEvent(QPaintEvent*)
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
-void FileBox::setFormLogin(Login *l){
+void FileBox::setFormLogin(Login *l)
+{
     login = l;
 }
 void FileBox::on_pbUpload_clicked()
 {
+    TCPClient socket("127.0.0.1", 5000);
+
+    auto [localFolders,localFiles] = ui->twLocalFiles->getSelectedFiles();
+    auto [remoteFolders,remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
+
+    if(remoteFolders.size() + remoteFiles.size() > 1)
+    {
+        QMessageBox::warning(this, "Upload", "Only one folder can be selected!");
+    } else if(remoteFiles.size() > 0)
+    {
+        QMessageBox::warning(this, "Upload", "Folder can be selected!");
+    }
+    socket.close();
 }

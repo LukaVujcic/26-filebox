@@ -29,7 +29,8 @@ void Login::on_pbRegister_clicked()
    m_reg->show();
 }
 
-void Login::setRegister(Register *r){
+void Login::setFormRegister(Register *r)
+{
     m_reg = r;
 }
 

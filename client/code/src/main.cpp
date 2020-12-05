@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     Login login(&fileBox);
     Register reg(&login);
 
-    login.setRegister(&reg);
+    login.setFormRegister(&reg);
     fileBox.setFormLogin(&login);
 
     login.show();
