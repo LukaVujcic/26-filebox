@@ -80,14 +80,36 @@ void TCPConnection::disconnected()
     emit closed();
 }
 
+bool is_upload(QByteArray& msg)
+{
+    return !QString(msg).compare(("UPLOAD"));
+}
+
+bool create_folder(QByteArray& msg)
+{
+    return !QString(msg).compare(("NEW FOLDER"));
+}
+
 void TCPConnection::readyRead()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
     if(!socket) return;
 
-    QByteArray data = socket->readAll();
+
+    QByteArray data = socket->readLine();
+
+    if(is_upload(data))
+    {
+        qDebug()<<"Uploading file.... "<<data;
+    }
+
+    else if(create_folder(data))
+    {
+        qDebug()<<"Creating new folder.... "<<data;
+    }
 
     qDebug() << this << socket << " TCPConnection::readyRead" << data;
+
     active();
 }
 
@@ -106,6 +128,7 @@ void TCPConnection::stateChanged(QAbstractSocket::SocketState socketState)
     if(!socket) return;
 
     qDebug() << socket << " stateChanged " << socketState;
+    qDebug() << socket << socket->readAll()<<"\n";
     active();
 }
 

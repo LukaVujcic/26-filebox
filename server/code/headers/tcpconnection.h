@@ -14,6 +14,8 @@ public:
     ~TCPConnection();
     int idleTime();
 
+
+
 signals:
     void opened();
     void closed();
@@ -27,6 +29,10 @@ public slots:
     virtual void bytesWritten(qint64 bytes);
     virtual void stateChanged(QAbstractSocket::SocketState socketState);
     virtual void error(QAbstractSocket::SocketError socketError);
+
+private:
+    bool is_upload(QByteArray& msg);
+    bool create_folder(QByteArray& msg);
 
 protected:
     QList<QTcpSocket*> sockets;
