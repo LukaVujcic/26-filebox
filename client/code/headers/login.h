@@ -22,7 +22,7 @@ public:
 
     void paintEvent(QPaintEvent*);
 
-    void setRegister(Register* r);
+    void setFormRegister(Register* r);
 
 private slots:
     void on_pbRegister_clicked();
