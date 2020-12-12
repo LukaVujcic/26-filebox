@@ -328,7 +328,6 @@ void TCPServer::accept(qintptr handle, TCPRunnable *runnable)
         qCritical() << this << "could not find connection to accept connection: " << handle;
         return;
     }
-
     emit connecting(handle, runnable, connection);
 }
 
