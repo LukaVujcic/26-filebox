@@ -23,20 +23,6 @@ void TCPClient::disconnected()
     qDebug() << "disconnected...";
 
 }
-//TODO Implement folderTraversal
-//void TCPClient::folderTraversal(QString rootFolderPath)
-//{
-//  QDirIterator it(rootFolderPath, QDirIterator::Subdirectories);
-//  QDir rootFolder(rootFolderPath);
-
-//  while (it.hasNext()) {
-//      auto t=it.next();
-//      this->sendMessage(t+"\n");
-//      this->sendMessage(rootFolder.dirName()+t.right(t.length()-rootFolderPath.length())+"\n");
-//      qDebug()<<t;
-//     qDebug() << rootFolder.dirName()+t.right(t.length()-rootFolderPath.length());
-//  }
-//}
 void TCPClient::sendFile(const QString &filePath){
     QFile file(filePath);
     qDebug()<<filePath;
@@ -58,21 +44,55 @@ void TCPClient::sendFile(const QString &filePath){
     file.close();
 
 }
-//TODO Implement sendAll
-//void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&folders)
-//{
+void TCPClient::folderTraversal(QString rootFolderPath)
+{
+  QDirIterator it(rootFolderPath,QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+  QDir rootFolder(rootFolderPath);
+  newFolderRequest(rootFolder.dirName());
+  while (it.hasNext()) {
+      auto currentEntry=it.next();
+      QString pathLocal=currentEntry;
+      QString pathRemote=rootFolder.dirName()+currentEntry.right(currentEntry.length()-rootFolderPath.length());
+      QFileInfo fileInfo(pathLocal);
+      if (fileInfo.isDir())
+      {
+          newFolderRequest(pathRemote);
+      }
+      else
+      {
+          uploadRequest(pathLocal,pathRemote);
+      }
+  }
+}
+void TCPClient::uploadRequest(const QString &pathLocal, const QString &pathRemote)
+{
+    this->sendMessage("UPLOAD\r\n");
+    this->sendMessage(pathRemote+"\r\n");
+    this->sendFile(pathLocal);
+}
 
-//    for(const auto& file: files){
-//        //this->sendMessage("UPLOAD\r\n");
-//        this->sendFile(file);
-//    }
-//}
+void TCPClient::newFolderRequest(const QString &pathRemote)
+{
+    this->sendMessage("NEW FOLDER\r\n");
+    this->sendMessage(pathRemote+"\r\n");
+}
+void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&folders)
+{
 
-void TCPClient::sendMessage(QString message)
+    for(const auto& file: files){
+        QFileInfo fileInfo(file);
+        QString fileName = fileInfo.fileName();
+        this->uploadRequest(fileName,fileName);
+    }
+    for (const auto& folder:folders)
+    {
+        folderTraversal(folder);
+    }
+}
+void TCPClient::sendMessage(const QString &message)
 {
     this->write(message.toStdString().c_str());
     this->flush();
     this->waitForBytesWritten();
-    //qDebug()<<this->bytesToWrite();
 }
 

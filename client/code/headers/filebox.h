@@ -18,7 +18,6 @@ class FileBox : public QWidget
 public:
     FileBox(QWidget *parent = nullptr);
     ~FileBox();
-
     void paintEvent(QPaintEvent*);
 
     void setFormLogin(Login *l);
