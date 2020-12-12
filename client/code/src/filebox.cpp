@@ -23,6 +23,7 @@ FileBox::FileBox(QWidget *parent)
    ui->twRemoteFiles->setRootIndex(modelRemote->index(""));
 }
 
+
 FileBox::~FileBox()
 {
     delete ui->twLocalFiles->model();
@@ -48,7 +49,6 @@ void FileBox::on_pbUpload_clicked()
 
     auto [localFolders,localFiles] = ui->twLocalFiles->getSelectedFiles();
     auto [remoteFolders,remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
-
     if(remoteFolders.size() + remoteFiles.size() > 1)
     {
         QMessageBox::warning(this, "Upload", "Only one folder can be selected!");
@@ -56,5 +56,6 @@ void FileBox::on_pbUpload_clicked()
     {
         QMessageBox::warning(this, "Upload", "Folder can be selected!");
     }
+    //socket.sendAll(localFiles,localFolders);
     socket.close();
 }
