@@ -105,9 +105,9 @@ bool TCPConnection::is_paste_request(QByteArray& msg)
     return !QString(msg).compare(("PASTE"));
 }
 
-bool TCPConnection::upload_file(QTcpSocket *socket, QByteArray file_path)
+bool TCPConnection::is_register_request(QByteArray& msg)
 {
-
+    return !QString(msg).compare(("REGISTER\n"));
 }
 
 void TCPConnection::readyRead()
@@ -122,11 +122,13 @@ void TCPConnection::readyRead()
     socket->waitForReadyRead(1000);
     QByteArray REQUEST = socket->readLine(1000);
     qDebug()<<REQUEST;
-    socket->waitForReadyRead(1000);
-    QByteArray file_path = socket->readLine(1000);
-    qDebug()<<file_path;
+
     if(is_upload_request(REQUEST))
     {
+        socket->waitForReadyRead(1000);
+        QByteArray file_path = socket->readLine(1000);
+        qDebug()<<file_path;
+
         qDebug()<<"Request: "<<REQUEST<<" file path: "<<file_path<<"\n";
         qDebug()<<"File content: "<<"\n";
 
@@ -142,7 +144,7 @@ void TCPConnection::readyRead()
 
         f.open( QIODevice::WriteOnly);
 
-        const int chunckSize=1024;
+        const int chunckSize=1024*1024;
         char *chunk=new char[chunckSize+1];
         int total=0;
         int bytesRead;
@@ -173,11 +175,8 @@ void TCPConnection::readyRead()
             f.flush();
             f.waitForBytesWritten(-1);
             //f.flush()
-
-
         }
-        socket->waitForReadyRead(1000);
-        qDebug()<<socket->readLine(1000);
+
         //qDebug()<<"Total: "<<total;
        // qDebug()<<"Nesto";
         //qDebug()<<total<<"BYTES";
@@ -203,12 +202,56 @@ void TCPConnection::readyRead()
     {
         qDebug() << "Copying folder(s)... " << REQUEST;
     }
+    else if(is_register_request(REQUEST))
+    {
+        qDebug() << "Registration" << REQUEST;
+
+        socket->waitForReadyRead(100);
+        QString username = socket->readLine();
+        socket->waitForReadyRead(100);
+        QString password = socket->readLine();
+
+        username.replace("\n", "");
+
+        qDebug() << username << password;
+
+        QFile file("./../users/users.txt");
+
+        if(searchUsername(username, file))
+        {
+            socket->write("EXISTS");
+            socket->waitForBytesWritten();
+        } else
+        {
+            socket->write("CONTINUE");
+            socket->waitForBytesWritten();
+            file.seek(file.size());
+            QString linija = "\n" + username + " " + password;
+            file.write(linija.toStdString().c_str());
+        }
+
+        file.close();
+    }
     else
     {
         qDebug() << "Pasting folder(s)... "<< REQUEST<<"\n";
     }
 
     active();
+}
+
+bool TCPConnection::searchUsername(QString& username, QFile &file)
+{
+    file.open(QIODevice::ReadWrite | QIODevice::Text);
+    while (!file.atEnd()) {
+        QString rec = file.readLine();
+        rec.replace("\n", "");
+        if(rec.contains(username)){
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void TCPConnection::bytesWritten(qint64 bytes)
@@ -220,14 +263,6 @@ void TCPConnection::bytesWritten(qint64 bytes)
     qDebug() << socket << " bytesWritten " << bytes;
     active();
 }
-//void TCPConnection::sendMessage(QTcpSocket *socket,QString message)
-//{
-//    //QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
-//    socket->write(message.toStdString().c_str());
-//    socket->flush();
-//    socket->waitForBytesWritten();
-//    //qDebug()<<this->bytesToWrite();
-//}
 
 void TCPConnection::stateChanged(QAbstractSocket::SocketState socketState)
 {
@@ -236,6 +271,7 @@ void TCPConnection::stateChanged(QAbstractSocket::SocketState socketState)
         return;
 
     qDebug() << socket << " stateChanged " << socketState;
+    qDebug() << socket << socket->readAll()<<"\n";
     active();
 }
 
@@ -269,6 +305,4 @@ void TCPConnection::active()
 {
     qDebug() << this << "socket active";
     activity = QTime::currentTime();
-
-
 }

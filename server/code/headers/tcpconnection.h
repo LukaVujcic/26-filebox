@@ -16,7 +16,6 @@ public:
     ~TCPConnection();
     int idleTime();
 
-    //void sendMessage(QTcpSocket *socket,QString message);
 signals:
     void opened();
     void closed();
@@ -37,7 +36,8 @@ private:
     bool is_cut_request(QByteArray& msg);
     bool is_copy_request(QByteArray& msg);
     bool is_paste_request(QByteArray& msg);
-    bool upload_file(QTcpSocket *socket, QByteArray file_path);
+    bool is_register_request(QByteArray& msg);
+    bool searchUsername(QString& username, QFile &file);
 
 protected:
     QList<QTcpSocket*> sockets;

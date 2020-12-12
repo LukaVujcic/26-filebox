@@ -14,13 +14,13 @@ public:
     void sendMessage(const QString& message);
     void sendAll(const QVector<QString> &files,const QVector<QString>&folders);
 
-
 private:
     void folderTraversal(QString rootFolderPath);
     void sendFile(const QString &filePath);
     void uploadRequest(const QString& pathLocal,const QString& pathRemote);
     void newFolderRequest(const QString& pathRemote);
     void sendFolder(const QString& path);
+
 private slots:
     void connected();
     void disconnected();

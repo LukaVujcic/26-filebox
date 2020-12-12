@@ -23,12 +23,13 @@ void TCPClient::disconnected()
     qDebug() << "disconnected...";
 
 }
+
 void TCPClient::sendFile(const QString &filePath){
     QFile file(filePath);
     qDebug()<<filePath;
     if(!file.open(QIODevice::ReadOnly))
         return ;
-    const int chunckSize=1024;
+    const int chunckSize=1024*1024;
     char *chunk=new char[chunckSize+1];
     while(true)
     {
@@ -94,5 +95,6 @@ void TCPClient::sendMessage(const QString &message)
     this->write(message.toStdString().c_str());
     this->flush();
     this->waitForBytesWritten();
+    //qDebug()<<this->bytesToWrite();
 }
 

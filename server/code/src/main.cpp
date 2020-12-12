@@ -1,4 +1,6 @@
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QFile>
 #include "tcpconnection.h"
 #include "tcprunnable.h"
 #include "tcpserver.h"
