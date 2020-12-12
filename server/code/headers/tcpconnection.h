@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QTcpSocket>
 #include <QTime>
+#include <QFile>
 
 class TCPConnection : public QObject
 {
@@ -34,6 +35,8 @@ private:
     bool is_cut_request(QByteArray& msg);
     bool is_copy_request(QByteArray& msg);
     bool is_paste_request(QByteArray& msg);
+    bool is_register_request(QByteArray& msg);
+    bool searchUsername(QString& username, QFile &file);
 
 protected:
     QList<QTcpSocket*> sockets;

@@ -1,4 +1,6 @@
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QFile>
 #include "tcpconnection.h"
 #include "tcprunnable.h"
 #include "tcpserver.h"
@@ -8,7 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     TCPServer server;
-    server.listen(QHostAddress::Any, 2000);
+    server.listen(QHostAddress::Any, 5000);
 
     return a.exec();
 }

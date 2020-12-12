@@ -72,7 +72,7 @@ void TCPClient::sendMessage(QString message)
 {
     this->write(message.toStdString().c_str());
     this->flush();
-    this->waitForBytesWritten();
+    this->waitForBytesWritten(1000);
     //qDebug()<<this->bytesToWrite();
 }
 
