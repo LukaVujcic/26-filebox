@@ -6,7 +6,9 @@
 #include <QTcpSocket>
 #include <QTime>
 #include <QFile>
+#include <QDir>
 #include <QString>
+#include <filesystem>
 
 class TCPConnection : public QObject
 {
@@ -36,6 +38,7 @@ private:
     bool is_cut_request(QByteArray& msg);
     bool is_copy_request(QByteArray& msg);
     bool is_paste_request(QByteArray& msg);
+    bool is_delete_request(QByteArray& msg);
     bool is_register_request(QByteArray& msg);
     bool searchUsername(QString& username, QFile &file);
 

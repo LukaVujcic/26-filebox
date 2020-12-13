@@ -1,5 +1,5 @@
-#include "filebox.h"
 #include "ui_filebox.h"
+#include "filebox.h"
 #include "tcpclient.h"
 
 #include <QMessageBox>
@@ -8,21 +8,20 @@ FileBox::FileBox(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FileBox)
 {
-   ui->setupUi(this);
+    ui->setupUi(this);
 
-   QFileSystemModel *modelLocal = new QFileSystemModel;
-   QFileSystemModel *modelRemote = new QFileSystemModel;
+    QFileSystemModel *modelLocal = new QFileSystemModel;
+    QFileSystemModel *modelRemote = new QFileSystemModel;
 
-   modelLocal->setRootPath("");
-   modelRemote->setRootPath("");
+    modelLocal->setRootPath("");
+    modelRemote->setRootPath("");
 
-   ui->twLocalFiles->setModel(modelLocal);
-   ui->twLocalFiles->setRootIndex(modelLocal->index(""));
+    ui->twLocalFiles->setModel(modelLocal);
+    ui->twLocalFiles->setRootIndex(modelLocal->index(""));
 
-   ui->twRemoteFiles->setModel(modelRemote);
-   ui->twRemoteFiles->setRootIndex(modelRemote->index(""));
+    ui->twRemoteFiles->setModel(modelRemote);
+    ui->twRemoteFiles->setRootIndex(modelRemote->index(""));
 }
-
 
 FileBox::~FileBox()
 {
@@ -47,9 +46,9 @@ void FileBox::on_pbUpload_clicked()
 {
     TCPClient socket("127.0.0.1", 5000);
 
-    auto [localFolders,localFiles] = ui->twLocalFiles->getSelectedFiles();
-    auto [remoteFolders,remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
-    if(remoteFolders.size() + remoteFiles.size() > 1)
+    auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
+            auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
+            if(remoteFolders.size() + remoteFiles.size() > 1)
     {
         QMessageBox::warning(this, "Upload", "Only one folder can be selected!");
     } else if(remoteFiles.size() > 0)
@@ -67,5 +66,45 @@ void FileBox::on_pbUpload_clicked()
 
 
     //socket.sendAll(localFiles,localFolders);
+    socket.close();
+}
+
+void FileBox::on_pbNewFolder_clicked()
+{
+    TCPClient socket("127.0.0.1", 5000);
+    socket.sendMessage("NEW FOLDER");
+
+    socket.close();
+}
+
+void FileBox::on_pbCut_clicked()
+{
+    TCPClient socket("127.0.0.1", 5000);
+    socket.sendMessage("CUT");
+
+    socket.close();
+}
+
+void FileBox::on_pbCopy_clicked()
+{
+    TCPClient socket("127.0.0.1", 5000);
+    socket.sendMessage("COPY");
+
+    socket.close();
+}
+
+void FileBox::on_pbPaste_clicked()
+{
+    TCPClient socket("127.0.0.1", 5000);
+    socket.sendMessage("PASTE");
+
+    socket.close();
+}
+
+void FileBox::on_pbDelete_clicked()
+{
+    TCPClient socket("127.0.0.1", 5000);
+    socket.sendMessage("DELETE");
+
     socket.close();
 }

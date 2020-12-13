@@ -1,5 +1,7 @@
 #include "tcpconnection.h"
 
+namespace fs = std::filesystem;
+
 TCPConnection::TCPConnection(QObject *parent) : QObject(parent)
 {
     Q_UNUSED(parent);
@@ -105,6 +107,11 @@ bool TCPConnection::is_paste_request(QByteArray& msg)
     return !QString(msg).compare(("PASTE"));
 }
 
+bool TCPConnection::is_delete_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("DELETE"));
+}
+
 bool TCPConnection::is_register_request(QByteArray& msg)
 {
     return !QString(msg).compare(("REGISTER\n"));
@@ -142,7 +149,7 @@ void TCPConnection::readyRead()
             return;
         }
 
-        f.open( QIODevice::WriteOnly);
+        f.open(QIODevice::WriteOnly);
 
         const int chunckSize=1024*1024;
         char *chunk=new char[chunckSize+1];
@@ -178,13 +185,13 @@ void TCPConnection::readyRead()
         }
 
         //qDebug()<<"Total: "<<total;
-       // qDebug()<<"Nesto";
+        //qDebug()<<"Nesto";
         //qDebug()<<total<<"BYTES";
         qDebug()<<socket->ConnectedState;
         delete[] chunk;
         f.close();
         qDebug()<<"Pisanje se zavrsava"<<"\n";
-//        qDebug()<<socket->ConnectedState;
+        //        qDebug()<<socket->ConnectedState;
         qDebug()<<socket->write("OK\r\n");
         socket->flush();
         socket->waitForBytesWritten(1000);
@@ -193,14 +200,41 @@ void TCPConnection::readyRead()
     else if(is_new_folder_request(REQUEST))
     {
         qDebug() << "Creating new folder.... " << REQUEST;
+
+        QDir dir_path(R"(./../server)");
+        dir_path.mkdir("new folder");
     }
     else if(is_cut_request(REQUEST))
     {
         qDebug() << "Cutting folder(s)... " << REQUEST;
+
+        const fs::path source {R"(D:\C++\Qt5)"};
+        const fs::path destination {R"(C:\Users\Darko i Marko\Documents)"};
+
+        try
+        {
+            const auto copy_options = fs::copy_options::recursive;
+            const fs::path filename = source.filename();
+            const fs::path new_path = destination / filename;
+
+            // qDebug() << "Copying: " << source.filename() << " to " << new_path.filename();
+
+            fs::create_directory(new_path);
+            fs::copy(source, new_path, copy_options);
+            fs::remove_all(source);
+        }
+        catch(const std::exception& e)
+        {
+            qDebug() << e.what();
+        }
     }
     else if(is_copy_request(REQUEST))
     {
         qDebug() << "Copying folder(s)... " << REQUEST;
+    }
+    else if(is_paste_request(REQUEST))
+    {
+        qDebug() << "Pasting folder(s)... " << REQUEST;
     }
     else if(is_register_request(REQUEST))
     {
@@ -221,20 +255,24 @@ void TCPConnection::readyRead()
         {
             socket->write("EXISTS");
             socket->waitForBytesWritten();
-        } else
+        }
+        else
         {
             socket->write("CONTINUE");
             socket->waitForBytesWritten();
             file.seek(file.size());
-            QString linija = "\n" + username + " " + password;
-            file.write(linija.toStdString().c_str());
+            QString line = "\n" + username + " " + password;
+            file.write(line.toStdString().c_str());
         }
 
         file.close();
     }
     else
     {
-        qDebug() << "Pasting folder(s)... "<< REQUEST<<"\n";
+        qDebug() << "Delete folder(s)... "<< REQUEST<<"\n";
+
+        QDir dir_path(R"(./../server/data)");
+        dir_path.removeRecursively();
     }
 
     active();
@@ -243,10 +281,12 @@ void TCPConnection::readyRead()
 bool TCPConnection::searchUsername(QString& username, QFile &file)
 {
     file.open(QIODevice::ReadWrite | QIODevice::Text);
-    while (!file.atEnd()) {
+    while (!file.atEnd())
+    {
         QString rec = file.readLine();
         rec.replace("\n", "");
-        if(rec.contains(username)){
+        if(rec.contains(username))
+        {
             return true;
         }
     }
