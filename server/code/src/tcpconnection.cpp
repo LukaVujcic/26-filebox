@@ -263,6 +263,8 @@ void TCPConnection::readyRead()
             file.seek(file.size());
             QString line = "\n" + username + " " + password;
             file.write(line.toStdString().c_str());
+            QDir folder("./../users");
+            folder.mkdir(username);
         }
 
         file.close();
