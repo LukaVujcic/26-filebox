@@ -9,18 +9,8 @@ FileBox::FileBox(QWidget *parent)
     , ui(new Ui::FileBox)
 {
     ui->setupUi(this);
-
-    QFileSystemModel *modelLocal = new QFileSystemModel;
-    QFileSystemModel *modelRemote = new QFileSystemModel;
-
-    modelLocal->setRootPath("");
-    modelRemote->setRootPath("");
-
-    ui->twLocalFiles->setModel(modelLocal);
-    ui->twLocalFiles->setRootIndex(modelLocal->index(""));
-
-    ui->twRemoteFiles->setModel(modelRemote);
-    ui->twRemoteFiles->setRootIndex(modelRemote->index(""));
+    ui->twLocalFiles->setViewFolder("");
+    ui->twRemoteFiles->setViewFolder("");
 }
 
 FileBox::~FileBox()

@@ -11,6 +11,7 @@ class FileSystemTreeView:public QTreeView
 public:
     FileSystemTreeView(QWidget *parent=nullptr);
     QPair<QVector<QString>,QVector<QString>> getSelectedFiles() const;
+    void setViewFolder(const QString &path);
 };
 
 #endif // FILESYSTEMTREEVIEW_H

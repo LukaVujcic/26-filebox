@@ -24,3 +24,13 @@ QPair<QVector<QString>,QVector<QString>> FileSystemTreeView::getSelectedFiles() 
     }
     return qMakePair(folders,files);
 }
+void FileSystemTreeView::setViewFolder(const QString &path)
+{
+    QFileSystemModel *model = new QFileSystemModel();
+    auto oldModel=this->model();
+    model->setRootPath(path);
+    this->setModel(model);
+    this->setRootIndex(model->index(path));
+    if (oldModel!=nullptr)
+        delete oldModel;
+}
