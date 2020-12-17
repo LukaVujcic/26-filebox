@@ -41,7 +41,7 @@ void TCPClient::sendFile(const QString &filePath){
             break;
         }
     }
-    delete chunk;
+    delete[] chunk;
     file.close();
 
 }

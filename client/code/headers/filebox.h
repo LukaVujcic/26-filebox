@@ -7,7 +7,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QStyleOption>
-
+#include <tcpclient.h>
 QT_BEGIN_NAMESPACE
 namespace Ui { class FileBox; }
 QT_END_NAMESPACE
@@ -22,10 +22,10 @@ public:
     void paintEvent(QPaintEvent*);
 
     void setFormLogin(Login *l);
-
+    void setSocket(TCPClient* socket);
 private:
     Ui::FileBox *ui;
-
+    TCPClient *m_socket;
     Login *login;
 private slots:
     void on_pbUpload_clicked();

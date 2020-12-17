@@ -17,6 +17,8 @@ FileBox::~FileBox()
 {
     delete ui->twLocalFiles->model();
     delete ui->twRemoteFiles->model();
+    m_socket->close();
+    delete m_socket;
     delete ui;
 }
 
@@ -32,9 +34,13 @@ void FileBox::setFormLogin(Login *l)
 {
     login = l;
 }
+void FileBox::setSocket(TCPClient *socket)
+{
+    m_socket=socket;
+}
 void FileBox::on_pbUpload_clicked()
 {
-    TCPClient socket("127.0.0.1", 5000);
+    //TCPClient socket("127.0.0.1", 5000);
 
     auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
             auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
@@ -56,7 +62,7 @@ void FileBox::on_pbUpload_clicked()
 
 
     //socket.sendAll(localFiles,localFolders);
-    socket.close();
+    //socket.close();
 }
 
 void FileBox::on_pbNewFolder_clicked()

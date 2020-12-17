@@ -1,6 +1,6 @@
 #include "login.h"
 #include "ui_login.h"
-
+#include <filebox.h>
 Login::Login(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Login)
@@ -47,6 +47,7 @@ void Login::on_pbLogin_clicked()
 
     hide();
     parentWidget()->show();
+    qobject_cast<FileBox*>(parentWidget())->setSocket(new TCPClient("127.0.0.1",5000));
 }
 
 
