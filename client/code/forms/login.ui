@@ -82,6 +82,10 @@ QLineEdit{
 #lblLogin{
 	color: white;
 	font-size: 26px;
+}
+
+#lblWarning{
+	color: red;
 }</string>
   </property>
   <widget class="QFrame" name="frame">
@@ -199,6 +203,19 @@ QLineEdit{
     </property>
     <property name="placeholderText">
      <string>IP Address</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblWarning">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>290</y>
+      <width>421</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

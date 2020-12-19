@@ -40,7 +40,9 @@ private:
     bool is_paste_request(QByteArray& msg);
     bool is_delete_request(QByteArray& msg);
     bool is_register_request(QByteArray& msg);
-    bool searchUsername(QString& username, QFile &file);
+    bool is_login_request(QByteArray& msg);
+    bool checkUsername(QString& username, QFile &file);
+    bool checkProfile(QString& username, QString& password, QFile &file);
 
 protected:
     QList<QTcpSocket*> sockets;
