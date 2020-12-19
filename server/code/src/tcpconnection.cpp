@@ -1,5 +1,7 @@
 #include "tcpconnection.h"
 
+#include <tcpconnection.h>
+
 namespace fs = std::filesystem;
 
 TCPConnection::TCPConnection(QObject *parent) : QObject(parent)
@@ -82,6 +84,35 @@ void TCPConnection::disconnected()
     emit closed();
 }
 
+void collect_files_and_folders(QString current_path, QString original_path, Zipper& zip)
+{
+    QDir dir(current_path);
+
+    if(dir.isEmpty()){
+        char* dir_path = (dir.canonicalPath().right((dir.canonicalPath().size() - original_path.size())) + "/").toLocal8Bit().data();
+        zip.add(dir_path, zip.SaveHierarchy);
+        return;
+    }
+
+    foreach(auto name, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst))
+    {
+        if(name.isDir()){
+            collect_files_and_folders(name.filePath(), original_path, zip);
+        }
+
+        else{
+            char* file_path = name.filePath().right(name.filePath().size() - original_path.size()).toLocal8Bit().data();
+            zip.add(file_path, zip.SaveHierarchy);
+        }
+     }
+
+}
+
+bool TCPConnection::is_filesystem_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("FILESYSTEM\r\n"));
+}
+
 bool TCPConnection::is_upload_request(QByteArray& msg)
 {
     return !QString(msg).compare(("UPLOAD\r\n"));
@@ -130,7 +161,14 @@ void TCPConnection::readyRead()
     QByteArray REQUEST = socket->readLine(1000);
     qDebug()<<REQUEST;
 
-    if(is_upload_request(REQUEST))
+    if(is_filesystem_request(REQUEST))
+    {
+        //TODO: SEND ZIP TO CLIENT
+        //
+        Zipper zipper("./ziper.zip");
+    }
+
+    else if(is_upload_request(REQUEST))
     {
         socket->waitForReadyRead(1000);
         QByteArray file_path = socket->readLine(1000);

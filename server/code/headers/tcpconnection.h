@@ -8,7 +8,11 @@
 #include <QFile>
 #include <QDir>
 #include <QString>
+#include <QMap>
 #include <filesystem>
+#include <zipper/unzipper.h>
+#include <zipper/zipper.h>
+using namespace zipper;
 
 class TCPConnection : public QObject
 {
@@ -41,6 +45,10 @@ private:
     bool is_delete_request(QByteArray& msg);
     bool is_register_request(QByteArray& msg);
     bool searchUsername(QString& username, QFile &file);
+    bool is_filesystem_request(QByteArray& msg);
+
+private:
+    QMap<QTcpSocket*, QString> users_map;
 
 protected:
     QList<QTcpSocket*> sockets;
