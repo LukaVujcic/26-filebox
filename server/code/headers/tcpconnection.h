@@ -41,8 +41,8 @@ private:
     bool is_delete_request(QByteArray& msg);
     bool is_register_request(QByteArray& msg);
     bool is_login_request(QByteArray& msg);
-    bool checkUsername(QString& username, QFile &file);
-    bool checkProfile(QString& username, QString& password, QFile &file);
+    bool checkUsername(const QString& username, QFile &file);
+    bool checkProfile(const QString& username, const QString& password, QFile &file);
 
 protected:
     QList<QTcpSocket*> sockets;

@@ -21,6 +21,7 @@ FileBox::FileBox(QWidget *parent)
 
     ui->twRemoteFiles->setModel(modelRemote);
     ui->twRemoteFiles->setRootIndex(modelRemote->index(""));
+    ui->twRemoteFiles->hideColumn(1);
 }
 
 FileBox::~FileBox()

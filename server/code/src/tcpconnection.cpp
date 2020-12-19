@@ -312,7 +312,7 @@ void TCPConnection::readyRead()
     active();
 }
 
-bool TCPConnection::checkUsername(QString& username, QFile &file)
+bool TCPConnection::checkUsername(const QString& username, QFile &file)
 {
     file.open(QIODevice::ReadWrite | QIODevice::Text);
     while (!file.atEnd())
@@ -329,7 +329,7 @@ bool TCPConnection::checkUsername(QString& username, QFile &file)
     return false;
 }
 
-bool TCPConnection::checkProfile(QString& username, QString& password, QFile &file)
+bool TCPConnection::checkProfile(const QString& username, const QString& password, QFile &file)
 {
     file.open(QIODevice::ReadWrite | QIODevice::Text);
     while (!file.atEnd())

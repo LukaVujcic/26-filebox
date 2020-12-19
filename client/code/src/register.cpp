@@ -59,6 +59,8 @@ void Register::on_pbRegister_clicked()
         ui->lePassword->setText("");
         ui->leConfirmPassword->setText("");
 
+        QMessageBox::information(this, "Register", "Registration was successful");
+
         hide();
         parentWidget()->show();
     }

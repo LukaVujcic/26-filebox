@@ -46,7 +46,7 @@ void Login::on_pbLogin_clicked()
     if(password.size() == 0) return;
     //if(IPAddress.size() == 0) return;
 
-    TCPClient socket("127.0.0.1", 5000);
+    /*TCPClient socket("127.0.0.1", 5000);
 
     socket.sendMessage("LOGIN\n");
     socket.sendMessage(username + "\n");
@@ -65,7 +65,10 @@ void Login::on_pbLogin_clicked()
         ui->lblWarning->setText("Wrong username or password");
     }
 
-    socket.close();
+    socket.close();*/
+
+    hide();
+    parentWidget()->show();
 }
 
 
