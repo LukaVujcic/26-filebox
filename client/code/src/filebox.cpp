@@ -52,7 +52,6 @@ void FileBox::on_pbUpload_clicked()
         QMessageBox::warning(this, "Upload", "Folder can be selected!");
     }
 
-
     /*socket.sendMessage("UPLOAD\r\n");
     socket.sendMessage("C:\\Users\\Petar\\Desktop\\testSlanje.png\r\n");
     socket.sendFile("C:\\Users\\Petar\\Desktop\\warning_1_filebox.png");

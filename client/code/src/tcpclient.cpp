@@ -77,6 +77,60 @@ void TCPClient::newFolderRequest(const QString &pathRemote)
     this->sendMessage("NEW FOLDER\r\n");
     this->sendMessage(pathRemote+"\r\n");
 }
+void TCPClient::receiveFile(const QString& filePath)
+{
+    QFile f(QString(filePath).trimmed());
+
+    if(f.exists())
+    {
+        qDebug()<<"File Exists";
+        return;
+    }
+
+    if (!f.open(QIODevice::WriteOnly)){
+        qDebug()<<"open";
+        return;
+    }
+    const int chunckSize=1024*1024;
+    char *chunk=new char[chunckSize+1];
+    int bytesRead;
+    while(1)
+    {
+        this->waitForReadyRead(1000);
+        if (this->bytesAvailable()>0)
+            bytesRead=this->read(chunk,chunckSize);
+        else
+        {   qDebug()<<"bytesRead: "<<bytesRead;
+            qDebug()<<"ELSE!!!"<<this->ConnectedState;
+            break;
+        }
+        if (bytesRead<=0)
+        {
+            //qDebug()<<"bytesRead: "<<bytesRead;
+            break;
+        }
+        f.write(static_cast<const char *>(chunk),bytesRead);
+        f.flush();
+        f.waitForBytesWritten(-1);
+        //f.flush()
+    }
+    delete[] chunk;
+    f.close();
+    qDebug()<<"Pisanje se zavrsava"<<"\n";
+    //        qDebug()<<socket->ConnectedState;
+    qDebug()<<this->write("OK\r\n");
+    this->flush();
+    this->waitForBytesWritten(1000);
+}
+
+QString TCPClient::fileSystemRequest()
+{
+    QString pathFile="filesystem.zip";
+    this->sendMessage("FILESYSTEM\r\n");
+    this->receiveFile(pathFile);
+    this->sendMessage("Ok\r\n");
+    return pathFile;
+}
 void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&folders)
 {
 

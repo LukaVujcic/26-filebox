@@ -1,4 +1,5 @@
 #include "filesystemtreeview.h"
+#include <serverfilesbrowser.h>
 FileSystemTreeView::FileSystemTreeView(QWidget *parent):QTreeView(parent)
 {
 
@@ -33,4 +34,10 @@ void FileSystemTreeView::setViewFolder(const QString &path)
     this->setRootIndex(model->index(path));
     if (oldModel!=nullptr)
         delete oldModel;
+}
+void FileSystemTreeView::getServerFilesystem(TCPClient *socket)
+{
+    QString pathFile=socket->fileSystemRequest();
+    ServerFilesBrowser sfb(pathFile);
+    this->setViewFolder(sfb.getFolderPath());
 }
