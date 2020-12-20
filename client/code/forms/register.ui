@@ -32,7 +32,8 @@
   <property name="styleSheet">
    <string notr="true">*{
 	font-size: 18px;
-	font-family: Trajan; 
+	font-family: Trajan;
+	color: black;
 }
 
 #pbRegister{
@@ -41,20 +42,27 @@
 	color: white;
 }
 
+QPushButton:hover{
+	border-radius: 5px;
+	background: #800000;
+	color: #333;
+}
+
 #pbRegister:hover{
 	border-radius: 15px;
 	background: #800000;
 	color: #333;
 }
 
-QFrame{
+#frame{
 	background: #333;
 	border-radius: 20px;
 }
 
 QPushButton{
-	border-radius: 60px;
+	border-radius: 5px;
 	background: red;
+	color: white;
 }
 
 QLineEdit{
@@ -178,7 +186,7 @@ QLineEdit{
      <rect>
       <x>30</x>
       <y>290</y>
-      <width>321</width>
+      <width>421</width>
       <height>31</height>
      </rect>
     </property>

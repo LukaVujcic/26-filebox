@@ -1,5 +1,7 @@
 #include "login.h"
 #include "ui_login.h"
+#include "tcpclient.h"
+
 #include <filebox.h>
 Login::Login(QWidget *parent)
     : QWidget(parent)
@@ -44,6 +46,27 @@ void Login::on_pbLogin_clicked()
     if(username.size() == 0) return;
     if(password.size() == 0) return;
     if(IPAddress.size() == 0) return;
+
+    TCPClient socket("127.0.0.1", 5000);
+
+    socket.sendMessage("LOGIN\n");
+    socket.sendMessage(username + "\n");
+    socket.sendMessage(password);
+
+    socket.waitForReadyRead();
+    QString answer = socket.readLine();
+
+    if(!answer.compare("CONTINUE"))
+    {
+        hide();
+        parentWidget()->show();
+    }
+    else if(!answer.compare("ERROR"))
+    {
+        ui->lblWarning->setText("Wrong username or password");
+    }
+
+    socket.close();
 
     hide();
     parentWidget()->show();

@@ -48,26 +48,22 @@ void Register::on_pbRegister_clicked()
     socket.waitForReadyRead();
     QString answer = socket.readLine();
 
-    ui->lblWarning->setText(answer);
-
     if(!answer.compare("EXISTS"))
     {
         ui->lblWarning->setText("Username is already used");
-    } else if(!answer.compare("CONTINUE"))
+    }
+    else if(!answer.compare("CONTINUE"))
     {
         ui->lblWarning->setText("");
         ui->leUsername->setText("");
         ui->lePassword->setText("");
         ui->leConfirmPassword->setText("");
 
+        QMessageBox::information(this, "Register", "Registration was successful");
+
         hide();
         parentWidget()->show();
     }
-
-    /*if(username.size() == 0) return;
-    if(password.size() == 0) return;
-    if(confirmPassword.size() == 0) return;
-    if(password != confirmPassword) return;*/
 
     socket.close();
 }

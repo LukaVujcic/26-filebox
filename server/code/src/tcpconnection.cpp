@@ -115,6 +115,11 @@ bool TCPConnection::is_register_request(QByteArray& msg)
     return !QString(msg).compare(("REGISTER\n"));
 }
 
+bool TCPConnection::is_login_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("LOGIN\n"));
+}
+
 void TCPConnection::readyRead()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
@@ -299,7 +304,7 @@ void TCPConnection::readyRead()
 
         QFile file("./../users/users.txt");
 
-        if(searchUsername(username, file))
+        if(checkUsername(username, file))
         {
             socket->write("EXISTS");
             socket->waitForBytesWritten();
@@ -316,6 +321,33 @@ void TCPConnection::readyRead()
         }
 
         file.close();
+    }
+    else if(is_login_request(REQUEST))
+    {
+        qDebug() << "Login" << REQUEST;
+
+        socket->waitForReadyRead(100);
+        QString username = socket->readLine();
+        socket->waitForReadyRead(100);
+        QString password = socket->readLine();
+
+        username.replace("\n", "");
+
+        QFile file("./../users/users.txt");
+
+        if(checkProfile(username, password, file))
+        {
+            socket->write("CONTINUE");
+            socket->waitForBytesWritten();
+        }
+        else
+        {
+            socket->write("ERROR");
+            socket->waitForBytesWritten();
+        }
+
+        file.close();
+
     }
     else
     {
@@ -334,14 +366,32 @@ void TCPConnection::readyRead()
     active();
 }
 
-bool TCPConnection::searchUsername(QString& username, QFile &file)
+bool TCPConnection::checkUsername(const QString& username, QFile &file)
 {
     file.open(QIODevice::ReadWrite | QIODevice::Text);
     while (!file.atEnd())
     {
         QString rec = file.readLine();
         rec.replace("\n", "");
-        if(rec.contains(username))
+        QStringList list = rec.split(" ");
+        if(!list[0].compare(username))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool TCPConnection::checkProfile(const QString& username, const QString& password, QFile &file)
+{
+    file.open(QIODevice::ReadWrite | QIODevice::Text);
+    while (!file.atEnd())
+    {
+        QString rec = file.readLine();
+        rec.replace("\n", "");
+        QStringList list = rec.split(" ");
+        if(!list[0].compare(username) && !list[1].compare(password))
         {
             return true;
         }
