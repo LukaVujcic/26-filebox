@@ -8,7 +8,11 @@
 #include <QFile>
 #include <QDir>
 #include <QString>
+
 #include <filesystem>
+#include <vector>
+
+namespace fs = std::filesystem;
 
 class TCPConnection : public QObject
 {
@@ -41,6 +45,16 @@ private:
     bool is_delete_request(QByteArray& msg);
     bool is_register_request(QByteArray& msg);
     bool searchUsername(QString& username, QFile &file);
+
+    /*bool transfer(fs::path folder_path);
+
+    bool make_folder(fs::path folder_path);
+    bool cut();
+    bool copy(fs::path folder_path);
+    bool paste(fs::path folder_path);*/
+
+private:
+    std::vector<fs::path> selected_files;
 
 protected:
     QList<QTcpSocket*> sockets;

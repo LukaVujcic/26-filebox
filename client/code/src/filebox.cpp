@@ -4,9 +4,8 @@
 
 #include <QMessageBox>
 
-FileBox::FileBox(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::FileBox)
+FileBox::FileBox(QWidget *parent):
+    QWidget(parent), ui(new Ui::FileBox)
 {
     ui->setupUi(this);
     ui->twLocalFiles->setViewFolder("");
@@ -17,37 +16,43 @@ FileBox::~FileBox()
 {
     delete ui->twLocalFiles->model();
     delete ui->twRemoteFiles->model();
+
     m_socket->close();
+
     delete m_socket;
     delete ui;
 }
 
 void FileBox::paintEvent(QPaintEvent*)
 {
-    QStyleOption opt;
-    opt.init(this);
-    QPainter p(this);
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+    QStyleOption option;
+    option.init(this);
+    QPainter painter(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &option, &painter, this);
 }
 
-void FileBox::setFormLogin(Login *l)
+void FileBox::setFormLogin(Login *log)
 {
-    login = l;
+    login = log;
 }
+
 void FileBox::setSocket(TCPClient *socket)
 {
-    m_socket=socket;
+    m_socket = socket;
 }
+
 void FileBox::on_pbUpload_clicked()
 {
     //TCPClient socket("127.0.0.1", 5000);
 
     auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
-            auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
-            if(remoteFolders.size() + remoteFiles.size() > 1)
+    auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
+
+    if(remoteFolders.size() + remoteFiles.size() > 1)
     {
         QMessageBox::warning(this, "Upload", "Only one folder can be selected!");
-    } else if(remoteFiles.size() > 0)
+    }
+    else if(remoteFiles.size() > 0)
     {
         QMessageBox::warning(this, "Upload", "Folder can be selected!");
     }
@@ -67,40 +72,82 @@ void FileBox::on_pbUpload_clicked()
 
 void FileBox::on_pbNewFolder_clicked()
 {
-    TCPClient socket("127.0.0.1", 5000);
-    socket.sendMessage("NEW FOLDER");
-
-    socket.close();
+    m_socket->sendMessage("NEW FOLDER\r\n");
 }
 
 void FileBox::on_pbCut_clicked()
 {
-    TCPClient socket("127.0.0.1", 5000);
-    socket.sendMessage("CUT");
+    auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
-    socket.close();
+    for(const auto &folder: folders)
+    {
+        m_socket->sendMessage("CUT\r\n");
+        qDebug() << folder;
+        m_socket->sendMessage(folder);
+    }
+
+    for(const auto &file: files)
+    {
+        m_socket->sendMessage("CUT\r\n");
+        qDebug() << file;
+        m_socket->sendMessage(file);
+    }
 }
 
 void FileBox::on_pbCopy_clicked()
 {
-    TCPClient socket("127.0.0.1", 5000);
-    socket.sendMessage("COPY");
+    auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
-    socket.close();
+    for(const auto &folder: folders)
+    {
+        m_socket->sendMessage("COPY\r\n");
+        qDebug() << folder;
+        m_socket->sendMessage(folder + "\r\n");
+    }
+
+    for(const auto &file: files)
+    {
+        m_socket->sendMessage("COPY\r\n");
+        qDebug() << file;
+        m_socket->sendMessage(file + "\r\n");
+    }
 }
 
 void FileBox::on_pbPaste_clicked()
 {
-    TCPClient socket("127.0.0.1", 5000);
-    socket.sendMessage("PASTE");
+    m_socket->sendMessage("PASTE\r\n");
 
-    socket.close();
+    auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+
+    if(files.isEmpty() && (folders.size() == 1 || folders.isEmpty()))
+    {
+        QString destination = (folders.size() == 1) ? folders[0] : "";
+
+        qDebug() << destination;
+
+        m_socket->sendMessage(destination);
+    }
+    else
+    {
+        qDebug() << "Please, select just one folder!";
+    }
 }
 
 void FileBox::on_pbDelete_clicked()
 {
-    TCPClient socket("127.0.0.1", 5000);
-    socket.sendMessage("DELETE");
+    m_socket->sendMessage("DELETE\r\n");
 
-    socket.close();
+    auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+
+    for(const auto &folder: folders)
+    {
+        qDebug() << folder;
+        m_socket->sendMessage(folder);
+    }
+
+    for(const auto &file: files)
+    {
+        qDebug() << file;
+        m_socket->sendMessage(file);
+    }
 }

@@ -1,7 +1,5 @@
 #include "tcpconnection.h"
 
-namespace fs = std::filesystem;
-
 TCPConnection::TCPConnection(QObject *parent) : QObject(parent)
 {
     Q_UNUSED(parent);
@@ -89,27 +87,27 @@ bool TCPConnection::is_upload_request(QByteArray& msg)
 
 bool TCPConnection::is_new_folder_request(QByteArray& msg)
 {
-    return !QString(msg).compare(("NEW FOLDER"));
+    return !QString(msg).compare(("NEW FOLDER\r\n"));
 }
 
 bool TCPConnection::is_cut_request(QByteArray& msg)
 {
-    return !QString(msg).compare(("CUT"));
+    return !QString(msg).compare(("CUT\r\n"));
 }
 
 bool TCPConnection::is_copy_request(QByteArray& msg)
 {
-    return !QString(msg).compare(("COPY"));
+    return !QString(msg).compare(("COPY\r\n"));
 }
 
 bool TCPConnection::is_paste_request(QByteArray& msg)
 {
-    return !QString(msg).compare(("PASTE"));
+    return !QString(msg).compare(("PASTE\r\n"));
 }
 
 bool TCPConnection::is_delete_request(QByteArray& msg)
 {
-    return !QString(msg).compare(("DELETE"));
+    return !QString(msg).compare(("DELETE\r\n"));
 }
 
 bool TCPConnection::is_register_request(QByteArray& msg)
@@ -197,45 +195,95 @@ void TCPConnection::readyRead()
         socket->waitForBytesWritten(1000);
 
     }
+
+
+
     else if(is_new_folder_request(REQUEST))
     {
         qDebug() << "Creating new folder.... " << REQUEST;
 
-        QDir dir_path(R"(./../server)");
-        dir_path.mkdir("new folder");
+        socket->waitForReadyRead(1000);
+        QString path = socket->readLine(1000);
+
+        QDir dir_path(path);
+
+        // PROVERA
+        if(dir_path.exists())
+            dir_path.mkdir("new folder");
     }
+
+
+
     else if(is_cut_request(REQUEST))
     {
         qDebug() << "Cutting folder(s)... " << REQUEST;
 
-        const fs::path source {R"(D:\C++\Qt5)"};
-        const fs::path destination {R"(C:\Users\Darko i Marko\Documents)"};
+        socket->waitForReadyRead(1000);
+        QString file_path = socket->readLine(1000);
 
-        try
-        {
-            const auto copy_options = fs::copy_options::recursive;
-            const fs::path filename = source.filename();
-            const fs::path new_path = destination / filename;
+        qDebug() << file_path;
 
-            // qDebug() << "Copying: " << source.filename() << " to " << new_path.filename();
-
-            fs::create_directory(new_path);
-            fs::copy(source, new_path, copy_options);
-            fs::remove_all(source);
-        }
-        catch(const std::exception& e)
-        {
-            qDebug() << e.what();
-        }
+        const fs::path file_name {file_path.toStdString()};
+        selected_files.push_back(file_name.filename());
     }
+
+
+
     else if(is_copy_request(REQUEST))
     {
-        qDebug() << "Copying folder(s)... " << REQUEST;
+        qDebug() << "Copying... " << REQUEST;
+
+        socket->waitForReadyRead(1000);
+        QString file_path = socket->readLine(1000);
+
+        qDebug() << file_path;
+
+        selected_files.push_back(file_path.trimmed().toStdString());
     }
+
+
+
     else if(is_paste_request(REQUEST))
     {
         qDebug() << "Pasting folder(s)... " << REQUEST;
+
+        socket->waitForReadyRead(1000);
+        QString destination_path = socket->readLine(1000);
+
+        qDebug() << destination_path;
+
+        for(const auto &source: selected_files)
+        {
+            const fs::path destination {destination_path.toStdString()};
+
+            try
+            {
+                const fs::path file_name = source.filename();
+                const fs::path new_path = destination / file_name;
+
+                const auto copy_options = fs::copy_options::update_existing
+                                        | fs::copy_options::recursive
+                                        | fs::copy_options::copy_symlinks;
+
+                if(fs::is_directory(source))
+                {
+                    fs::create_directory(new_path);
+                }
+
+                fs::copy(source, new_path, copy_options);
+            }
+            catch (const std::exception& e)
+            {
+                qDebug() << e.what();
+            }
+        }
+
+        // PROVERA
+        selected_files.clear();
     }
+
+
+
     else if(is_register_request(REQUEST))
     {
         qDebug() << "Registration" << REQUEST;
@@ -273,8 +321,14 @@ void TCPConnection::readyRead()
     {
         qDebug() << "Delete folder(s)... "<< REQUEST<<"\n";
 
-        QDir dir_path(R"(./../server/data)");
-        dir_path.removeRecursively();
+        socket->waitForReadyRead(1000);
+        QString file_path = socket->readLine(1000);
+
+        QDir dir_path(file_path);
+
+        // PROVERA
+        if(dir_path.exists())
+            dir_path.removeRecursively();
     }
 
     active();
