@@ -22,6 +22,8 @@ public:
     ~TCPConnection();
     int idleTime();
 
+    void sendFile(QString filePath);
+
 signals:
     void opened();
     void closed();

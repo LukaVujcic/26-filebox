@@ -84,29 +84,6 @@ void TCPConnection::disconnected()
     emit closed();
 }
 
-void collect_files_and_folders(QString current_path, QString original_path, Zipper& zip)
-{
-    QDir dir(current_path);
-
-    if(dir.isEmpty()){
-        char* dir_path = (dir.canonicalPath().right((dir.canonicalPath().size() - original_path.size())) + "/").toLocal8Bit().data();
-        zip.add(dir_path, zip.SaveHierarchy);
-        return;
-    }
-
-    foreach(auto name, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst))
-    {
-        if(name.isDir()){
-            collect_files_and_folders(name.filePath(), original_path, zip);
-        }
-
-        else{
-            char* file_path = name.filePath().right(name.filePath().size() - original_path.size()).toLocal8Bit().data();
-            zip.add(file_path, zip.SaveHierarchy);
-        }
-     }
-
-}
 
 bool TCPConnection::is_filesystem_request(QByteArray& msg)
 {
@@ -147,7 +124,61 @@ bool TCPConnection::is_register_request(QByteArray& msg)
 {
     return !QString(msg).compare(("REGISTER\n"));
 }
+void display_files_in_folder(QString current_path, QString original_path, Zipper& zip, QString user)
+{
+    QDir dir(current_path);
 
+    if(dir.isEmpty()){
+        char* dir_path = (dir.canonicalPath().right((dir.canonicalPath().size() - original_path.size())) + "/").toLocal8Bit().data();
+        dir_path = (user + static_cast<QString>(dir_path)).toLocal8Bit().data();
+        zip.add(dir_path, zip.SaveHierarchy);
+        return;
+    }
+
+    foreach(auto name, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst))
+    {
+        if(name.isDir()){
+            display_files_in_folder(name.filePath(), original_path, zip, user);
+        }
+
+        else{
+            char* file_path = name.filePath().right(name.filePath().size() - original_path.size()).toLocal8Bit().data();
+            file_path = (user  + static_cast<QString>(file_path)).toLocal8Bit().data();
+            zip.add(file_path, zip.SaveHierarchy);
+        }
+     }
+
+}
+void TCPConnection::sendFile(QString filePath){
+    QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
+    QFile file(filePath);
+    //qDebug()<<filePath;
+    if(!file.open(QIODevice::ReadOnly))
+        return ;
+    const int chunckSize=1024*1024;
+    char *chunk=new char[chunckSize+1];
+    int total=0;
+    qint64 fileSize=file.size();
+    //qDebug()<<"fileSize: "<<fileSize;
+    auto message=(QString::number(fileSize)+"\r\n");
+    //qDebug()<<"Poruka"<<(message+"\r\n").toLocal8Bit().data();
+    socket->write((message+"\r\n").toLocal8Bit().data());
+    socket->flush();
+    socket->waitForBytesWritten(-1);
+    while(true)
+    {
+        int bytesRead=file.read(chunk,chunckSize);
+        socket->write(static_cast<const char *>(chunk),bytesRead);
+        socket->waitForBytesWritten();
+        if (bytesRead==0)
+        {
+            break;
+        }
+        total+=bytesRead;
+    }
+    delete[] chunk;
+    file.close();
+}
 void TCPConnection::readyRead()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
