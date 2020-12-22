@@ -194,9 +194,15 @@ void TCPConnection::readyRead()
 
     if(is_filesystem_request(REQUEST))
     {
-        //TODO: SEND ZIP TO CLIENT
-        //
-        Zipper zipper("./ziper.zip");
+        /*TODO Srediti putanje*/
+        const char* user_path = "/home/luka/Desktop/FileBox-repo/26-filebox/server/users/admin";
+
+        Zipper zipper("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
+        display_files_in_folder(user_path, user_path, zipper, "filesystem");
+        zipper.close();
+        sendFile("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
+        QFile zip("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
+        zip.remove();
     }
 
     else if(is_upload_request(REQUEST))
@@ -207,18 +213,18 @@ void TCPConnection::readyRead()
 
         qDebug()<<"Request: "<<REQUEST<<" file path: "<<file_path<<"\n";
         qDebug()<<"File content: "<<"\n";
-
+        /*TODO Srediti putanje*/
         QFile f(QString(file_path).trimmed());
 
         //QFile f(QString("C:/Users/bozam/Desktop/preko_mreze.txt").trimmed());
 
-        if(f.exists())
+        /*if(f.exists())
         {
             qDebug()<<"File Exists";
             return;
-        }
+        }*/
 
-        f.open(QIODevice::WriteOnly);
+        f.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
         const int chunckSize=1024*1024;
         char *chunk=new char[chunckSize+1];
