@@ -5,9 +5,8 @@ ServerFilesBrowser::ServerFilesBrowser(const QString& zipPath)
 
 }
 
-QString ServerFilesBrowser::getFolderPath() const
+QString ServerFilesBrowser::getFolderPath(const QString& unzipPath) const
 {
-    QString unzipPath="filesystem";
     zipper::Unzipper unzipper(m_zipPath.toStdString());
     unzipper.extract(unzipPath.toStdString());
     QDirIterator it(unzipPath, QDir::AllDirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
@@ -19,6 +18,12 @@ QString ServerFilesBrowser::getFolderPath() const
     else{
         path="";
     }
+    QFile file(m_zipPath);
++   if (file.exists())
++   {
++      file.remove();
++   }
+
     return path;
 }
 

@@ -9,7 +9,7 @@ private:
     QString m_zipPath;
 public:
     ServerFilesBrowser(const QString& zipPath);
-    QString getFolderPath() const;
+    QString getFolderPath(const QString& unzipPath) const;
 };
 
 #endif // SERVERFILESBROWSER_H

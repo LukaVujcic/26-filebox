@@ -37,7 +37,13 @@ void FileSystemTreeView::setViewFolder(const QString &path)
 }
 void FileSystemTreeView::getServerFilesystem(TCPClient *socket)
 {
+    QString unzipPath="filesystem";
     QString pathFile=socket->fileSystemRequest();
+    QDir unzipDir(unzipPath);
+    if (unzipDir.exists())
+    {
+        unzipDir.removeRecursively();
+    }
     ServerFilesBrowser sfb(pathFile);
-    this->setViewFolder(sfb.getFolderPath());
+    this->setViewFolder(sfb.getFolderPath(unzipPath));
 }
