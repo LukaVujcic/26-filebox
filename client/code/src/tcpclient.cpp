@@ -91,12 +91,20 @@ void TCPClient::receiveFile(const QString& filePath)
         qDebug()<<"open";
         return;
     }
+    this->waitForReadyRead(-1);
+    QString fileSizeStr=this->readLine(3000);
+    bool flag=0;
+    qint64 bytesFile=fileSizeStr.left(fileSizeStr.length()-4).toLongLong(&flag,10);
     const int chunckSize=1024*1024;
     char *chunk=new char[chunckSize+1];
     int bytesRead;
+    int total=0;
     while(1)
     {
-        this->waitForReadyRead(1000);
+        if (total>=bytesFile){
+            break;
+        }
+        this->waitForReadyRead(-1);
         if (this->bytesAvailable()>0)
             bytesRead=this->read(chunk,chunckSize);
         else
@@ -137,7 +145,10 @@ void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&fol
     for(const auto& file: files){
         QFileInfo fileInfo(file);
         QString fileName = fileInfo.fileName();
-        this->uploadRequest(fileName,fileName);
+        this->uploadRequest(file,fileName);
+        this->waitForReadyRead(-1);
+        qDebug() <<this->readLine(1000);
+
     }
     for (const auto& folder:folders)
     {

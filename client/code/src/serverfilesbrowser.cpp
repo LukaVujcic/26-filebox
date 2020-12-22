@@ -19,10 +19,10 @@ QString ServerFilesBrowser::getFolderPath(const QString& unzipPath) const
         path="";
     }
     QFile file(m_zipPath);
-+   if (file.exists())
-+   {
-+      file.remove();
-+   }
+   if (file.exists())
+   {
+      file.remove();
+   }
 
     return path;
 }
