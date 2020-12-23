@@ -127,9 +127,9 @@ void TCPClient::receiveFile(const QString& filePath)
     f.close();
     qDebug()<<"Pisanje se zavrsava"<<"\n";
     //        qDebug()<<socket->ConnectedState;
-    qDebug()<<this->write("OK\r\n");
-    this->flush();
-    this->waitForBytesWritten(1000);
+    // qDebug()<<this->write("OK\r\n");
+    // this->flush();
+    // this->waitForBytesWritten(1000);
 }
 
 QString TCPClient::fileSystemRequest()
@@ -137,7 +137,7 @@ QString TCPClient::fileSystemRequest()
     QString pathFile="filesystem.zip";
     this->sendMessage("FILESYSTEM\r\n");
     this->receiveFile(pathFile);
-    this->sendMessage("Ok\r\n");
+    //this->sendMessage("Ok\r\n");
     return pathFile;
 }
 void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&folders)
