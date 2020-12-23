@@ -59,7 +59,7 @@ void FileBox::on_pbUpload_clicked()
     socket.waitForReadyRead(-1);
     qDebug() << socket.readLine(1000);*/
 
-
+    ui->twRemoteFiles->getServerFilesystem(m_socket);
     //socket.sendAll(localFiles,localFolders);
     //socket.close();
 }

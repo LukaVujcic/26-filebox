@@ -112,6 +112,7 @@ void TCPClient::receiveFile(const QString& filePath)
             qDebug()<<"ELSE!!!"<<this->ConnectedState;
             break;
         }
+        total+=bytesRead;
         if (bytesRead<=0)
         {
             //qDebug()<<"bytesRead: "<<bytesRead;
