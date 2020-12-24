@@ -9,22 +9,23 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-INCLUDEPATH += headers
-
+INCLUDEPATH += headers \
+               thirdPartyLibraries/zipper
 SOURCES += \
     src/login.cpp \
     src/main.cpp \
     src/register.cpp \
     src/filebox.cpp \
     src/filesystemtreeview.cpp \
-    src/tcpclient.cpp 
-
+    src/tcpclient.cpp \
+    src/serverfilesbrowser.cpp
 HEADERS += \
     headers/login.h \
     headers/register.h \
     headers/filebox.h \
     headers/filesystemtreeview.h \
-    headers/tcpclient.h 
+    headers/tcpclient.h \
+    headers/serverfilesbrowser.h
 
 FORMS += \
     forms/login.ui \
@@ -39,3 +40,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     ../resources/images/images.qrc
 
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/thirdPartyLibraries/zipper/build/release/ -lZipper
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/thirdPartyLibraries/zipper/build/debug/ -lZipper
+else:unix: LIBS += -L$$PWD/thirdPartyLibraries/zipper/build/ -lZipper
+
+INCLUDEPATH += $$PWD/thirdPartyLibraries/zipper/build
+DEPENDPATH += $$PWD/thirdPartyLibraries/zipper/build
