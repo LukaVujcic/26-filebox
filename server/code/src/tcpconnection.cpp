@@ -194,14 +194,23 @@ void TCPConnection::readyRead()
 
     if(is_filesystem_request(REQUEST))
     {
-        /*TODO Srediti putanje*/
-        const char* user_path = "/home/luka/Desktop/FileBox-repo/26-filebox/server/users/admin";
+//        const char* user_path = "/home/luka/Desktop/FileBox-repo/26-filebox/server/users/admin";
 
-        Zipper zipper("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
-        display_files_in_folder(user_path, user_path, zipper, "filesystem");
+//        Zipper zipper("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
+//        display_files_in_folder(user_path, user_path, zipper, "filesystem");
+//        zipper.close();
+//        sendFile("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
+//        QFile zip("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
+//        zip.remove();
+        /*TODO username*/
+        const char* user_path = "../users/admin";
+        QDir dir(user_path);
+        Zipper zipper("../users/ziptest.zip");
+
+        display_files_in_folder(dir.absolutePath(), dir.absolutePath(), zipper, "filesystem");
         zipper.close();
-        sendFile("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
-        QFile zip("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
+        sendFile("../users/ziptest.zip");
+        QFile zip("../users/ziptest.zip");
         zip.remove();
     }
 
