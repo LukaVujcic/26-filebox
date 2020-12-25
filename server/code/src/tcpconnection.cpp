@@ -1,4 +1,7 @@
 #include "tcpconnection.h"
+#include <fstream>
+#include <QFileInfo>
+#include <QDir>
 
 namespace fs = std::filesystem;
 
@@ -82,6 +85,10 @@ void TCPConnection::disconnected()
     emit closed();
 }
 
+bool TCPConnection::is_download_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("DOWNLOAD\r\n"));
+}
 
 bool TCPConnection::is_filesystem_request(QByteArray& msg)
 {
@@ -127,15 +134,18 @@ bool TCPConnection::is_login_request(QByteArray& msg)
 {
     return !QString(msg).compare(("LOGIN\n"));
 }
+
 void display_files_in_folder(QString current_path, QString original_path, Zipper& zip, QString user)
 {
     QDir dir(current_path);
+
     if(dir.isEmpty()){
         char* dir_path = (dir.canonicalPath().right((dir.canonicalPath().size() - original_path.size())) + "/").toLocal8Bit().data();
         dir_path = (user + static_cast<QString>(dir_path)).toLocal8Bit().data();
         zip.add(dir_path, zip.SaveHierarchy);
         return;
     }
+
     foreach(auto name, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst))
     {
         if(name.isDir()){
@@ -148,6 +158,38 @@ void display_files_in_folder(QString current_path, QString original_path, Zipper
         }
      }
 }
+
+void get_files_and_folders(QString current_path, QString& server_path, Zipper& zip)
+{
+    QFileInfo file_info(current_path);
+
+    if(file_info.isFile()){
+       std::ifstream input1(file_info.filePath().toLocal8Bit().data());
+       char* file_path = server_path.toLocal8Bit().data();
+       zip.add(input1, file_path, zip.SaveHierarchy);
+       //free(file_path);
+
+       return;
+    }
+
+   QDir dir(file_info.filePath());
+
+   if(dir.isEmpty()){
+       char* dir_path = (server_path + "/").toLocal8Bit().data();
+       zip.add(dir_path, zip.SaveHierarchy);
+       //free(dir_path);
+
+       return;
+   }
+
+   foreach(auto name, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst))
+   {
+       QString new_path = server_path + "/" + name.baseName();
+       get_files_and_folders(name.filePath(), new_path, zip);
+   }
+
+}
+
 void TCPConnection::sendFile(QString filePath){
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
     QFile file(filePath);
@@ -178,6 +220,7 @@ void TCPConnection::sendFile(QString filePath){
     delete[] chunk;
     file.close();
 }
+
 void TCPConnection::readyRead()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
@@ -189,9 +232,48 @@ void TCPConnection::readyRead()
 
     socket->waitForReadyRead(1000);
     QByteArray REQUEST = socket->readLine(1000);
-    qDebug()<<REQUEST;
+    //qDebug()<<REQUEST;
 
-    if(is_filesystem_request(REQUEST))
+    if(is_download_request(REQUEST)){
+        qDebug()<<"FROM DOWNLOAD: "<<REQUEST<<"\n";
+
+        bool  conversion_successful = true;
+
+        socket->waitForReadyRead(1000);
+        int num_of_files = socket->readLine(1000).toInt(&conversion_successful);
+        qDebug()<<"Broj linija: "<<num_of_files<<"\n";
+
+        Zipper zipper("ziptest.zip");
+
+        if(!conversion_successful){
+            qDebug()<<"Expected number of lines!"<<"\n";
+            return;
+        }
+
+        QString server_path;
+        QString server_user_path = "../users/admin/";
+
+        while(num_of_files--){
+            socket->waitForReadyRead(1000);
+            QString path= socket->readLine(1000);
+
+            server_path = "../users/admin/" + path.trimmed();
+            qDebug()<<"Cela putanja: "<<server_path<<"\n";
+
+            QFileInfo f1(server_path);
+            QString name = f1.baseName();
+
+            get_files_and_folders(server_path, name, zipper);
+        }
+
+        zipper.close();
+
+        sendFile("ziptest.zip");
+        QFile zip("ziptest.zip");
+        zip.remove();
+    }
+
+    else if(is_filesystem_request(REQUEST))
     {
 //        const char* user_path = "/home/luka/Desktop/FileBox-repo/26-filebox/server/users/admin";
 

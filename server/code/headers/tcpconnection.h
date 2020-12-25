@@ -53,6 +53,7 @@ private:
     bool checkUsername(const QString& username, QFile &file);
     bool checkProfile(const QString& username, const QString& password, QFile &file);
     bool is_filesystem_request(QByteArray& msg);
+    bool is_download_request(QByteArray& msg);
     /*bool transfer(fs::path folder_path);
 
     bool make_folder(fs::path folder_path);

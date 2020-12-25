@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QDirIterator>
 #include <QDir>
+#include <QDateTime>
+//#include <filesystemtreeview.h>
 class TCPClient:public QTcpSocket
 {
 Q_OBJECT
@@ -13,7 +15,8 @@ public:
     TCPClient(QString ip,quint16 port);
     void sendMessage(const QString& message);
     void sendAll(const QVector<QString> &files,const QVector<QString>&folders);
-     QString fileSystemRequest();
+    void downloadRequest(const QVector<QString>& remoteFiles, const QVector<QString> &remoteFolders, const QString &localFolder,const QString &rootPath);
+    QString fileSystemRequest();
 private:
     void folderTraversal(QString rootFolderPath);
     void sendFile(const QString &filePath);
