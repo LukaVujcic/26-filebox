@@ -68,8 +68,6 @@ void Login::on_pbLogin_clicked()
 
     socket.close();
 
-    hide();
-    parentWidget()->show();
     qobject_cast<FileBox*>(parentWidget())->setSocket(new TCPClient("127.0.0.1",5000));
 }
 
