@@ -150,3 +150,31 @@ void FileBox::on_pbDelete_clicked()
         m_socket->sendMessage(file);
     }
 }
+void FileBox::on_pbDownload_clicked(){
+    //qDebug()<<QDateTime::currentMSecsSinceEpoch();
+    auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
+    auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
+    auto rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
+    m_socket->downloadRequest(remoteFiles,remoteFolders,localFolders[0],rootPath);
+
+//    QVector<QString> selected;
+//    selected=remoteFolders;
+//    for (const auto& file:remoteFiles){
+//        selected.push_back(file);
+//    }
+//    for (const auto& selectItem: selected)
+//    {
+//        //qDebug()<<folder;
+//        //qDebug()<<dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
+//        auto rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
+//        auto itemPath=selectItem.right(selectItem.length()-rootPath.length());
+//        qDebug()<<itemPath;
+//        m_socket->downloadRequest(itemPath);
+//        QFileInfo qfi(selectItem);
+//        m_socket->receiveFile(qfi.fileName());
+//    }
+
+
+
+
+}

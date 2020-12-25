@@ -156,6 +156,25 @@ void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&fol
         folderTraversal(folder);
     }
 }
+
+void TCPClient::downloadRequest(const QVector<QString>& remoteFiles, const QVector<QString> &remoteFolders, const QString &localFolder,const QString &rootPath)
+{
+        QVector<QString> selected;
+        selected=remoteFolders;
+        for (const auto& file:remoteFiles){
+            selected.push_back(file);
+        }
+        this->sendMessage("DOWNLOAD\r\n");
+        this->sendMessage((QString::number(selected.size())+"\r\n").toLocal8Bit().data());
+        for (const auto& selectItem: selected)
+        {
+            auto itemPath=selectItem.right(selectItem.length()-rootPath.length());
+            qDebug()<<itemPath;
+            this->sendMessage(itemPath+"\r\n");
+        }
+        auto timeInMSeconds=QString::number(QDateTime::currentMSecsSinceEpoch());
+        this->receiveFile(localFolder+"/downloaded"+timeInMSeconds+".zip");
+}
 void TCPClient::sendMessage(const QString &message)
 {
     this->write(message.toStdString().c_str());
