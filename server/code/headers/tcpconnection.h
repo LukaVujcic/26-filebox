@@ -13,6 +13,7 @@
 #include <zipper/unzipper.h>
 #include <zipper/zipper.h>
 #include <vector>
+#include <QCryptographicHash>
 using namespace zipper;
 
 namespace fs = std::filesystem;

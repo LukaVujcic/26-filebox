@@ -5,6 +5,8 @@
 
 namespace fs = std::filesystem;
 
+bool find_str(char const* str, char const* substr);
+
 TCPConnection::TCPConnection(QObject *parent) : QObject(parent)
 {
     Q_UNUSED(parent);
@@ -448,13 +450,19 @@ void TCPConnection::readyRead()
         socket->waitForReadyRead(100);
         QString username = socket->readLine();
         socket->waitForReadyRead(100);
-        QString password = socket->readLine();
+        QByteArray password = socket->readLine();
 
         username.replace("\n", "");
 
+        QCryptographicHash hash(QCryptographicHash::Sha256);
+        hash.addData(password);
+
         qDebug() << username << password;
 
-        QFile file("./../users/users.txt");
+        password = hash.result();
+        hash.reset();
+
+        QFile file("../users/users.txt");
 
         if(checkUsername(username, file))
         {
@@ -466,41 +474,49 @@ void TCPConnection::readyRead()
             socket->write("CONTINUE");
             socket->waitForBytesWritten();
             file.seek(file.size());
-            QString line = "\n" + username + " " + password;
+            QString line = username + " " + password + "\n";
             file.write(line.toStdString().c_str());
-            QDir folder("./../users");
+            QDir folder("../users");
             folder.mkdir(username);
         }
 
         file.close();
     }
     else if(is_login_request(REQUEST))
-    {
-        qDebug() << "Login" << REQUEST;
-
-        socket->waitForReadyRead(100);
-        QString username = socket->readLine();
-        socket->waitForReadyRead(100);
-        QString password = socket->readLine();
-
-        username.replace("\n", "");
-
-        QFile file("./../users/users.txt");
-
-        if(checkProfile(username, password, file))
         {
-            socket->write("CONTINUE");
-            socket->waitForBytesWritten();
-        }
-        else
-        {
-            socket->write("ERROR");
-            socket->waitForBytesWritten();
-        }
+            qDebug() << "Login" << REQUEST;
 
-        file.close();
+            socket->waitForReadyRead(100);
+            QString username = socket->readLine();
+            socket->waitForReadyRead(100);
+            QByteArray password = socket->readLine();
 
-    }
+            username.replace("\n", "");
+
+            QFile file("../users/users.txt");
+
+            QCryptographicHash hash(QCryptographicHash::Sha256);
+            hash.addData(password);
+
+            qDebug() << username << password;
+
+            password = hash.result();
+            hash.reset();
+
+            if(checkProfile(username, password, file))
+            {
+                socket->write("CONTINUE");
+                socket->waitForBytesWritten();
+            }
+            else
+            {
+                socket->write("ERROR");
+                socket->waitForBytesWritten();
+            }
+
+            file.close();
+
+        }
     else
     {
         qDebug() << "Delete folder(s)... "<< REQUEST<<"\n";
@@ -540,10 +556,22 @@ bool TCPConnection::checkProfile(const QString& username, const QString& passwor
     file.open(QIODevice::ReadWrite | QIODevice::Text);
     while (!file.atEnd())
     {
-        QString rec = file.readLine();
-        rec.replace("\n", "");
-        QStringList list = rec.split(" ");
-        if(!list[0].compare(username) && !list[1].compare(password))
+        QString line = file.readLine();
+        line.replace("\n", "");
+
+        QStringList list = line.split(" ");
+        if(list.size() < 2){
+            return false;
+        }
+        QString matchPassword = list[1];
+
+        if(list.size() > 2){
+            for(int i = 2; i<list.size(); i++){
+                matchPassword = matchPassword + " " + list[i];
+            }
+        }
+
+        if(!list[0].compare(username) && !matchPassword.compare(password))
         {
             return true;
         }
@@ -604,3 +632,4 @@ void TCPConnection::active()
     qDebug() << this << "socket active";
     activity = QTime::currentTime();
 }
+

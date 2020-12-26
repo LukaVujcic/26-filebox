@@ -44,7 +44,7 @@ void Register::on_pbRegister_clicked()
 
     if(!socket.isValid() || !socket.waitForConnected()){
         socket.close();
-        ui->lblWarning->setText("Wrong IP address");
+        ui->lblWarning->setText("Connection not established!");
         return;
     }
 
@@ -72,6 +72,10 @@ void Register::on_pbRegister_clicked()
         hide();
         parentWidget()->show();
     }
+    else if(!answer.compare("ERROR"))
+    {
+        ui->lblWarning->setText("Can't use that password");
+    }
 
     socket.close();
 }
@@ -87,6 +91,11 @@ bool Register::checkInput(QString &username, QString &password, QString &confirm
     if(password.compare(confirmPassword))
     {
         ui->lblWarning->setText("Passwords must match");
+        return false;
+    }
+
+    if(username.contains(" ") || password.contains(" ")){
+        ui->lblWarning->setText("Can't use blank space");
         return false;
     }
 

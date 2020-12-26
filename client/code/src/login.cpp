@@ -29,6 +29,8 @@ void Login::on_pbRegister_clicked()
 {
    hide();
    m_reg->show();
+
+   resetForm();
 }
 
 void Login::setFormRegister(Register *r)
@@ -42,14 +44,13 @@ void Login::on_pbLogin_clicked()
     QString password = ui->lePassword->text();
     QString IPAddress = ui->leIP->text();
 
-
     if(username.size() == 0) return;
     if(password.size() == 0) return;
     if(IPAddress.size() == 0) return;
 
     TCPClient *socket = new TCPClient(IPAddress, 5000);
 
-    if(!socket->isValid() || !socket->waitForConnected()){
+    if(!socket->isValid() || !socket->waitForConnected(1)){
         socket->close();
         ui->lblWarning->setText("Connection not established!");
         return;
@@ -68,10 +69,7 @@ void Login::on_pbLogin_clicked()
         hide();
         parentWidget()->show();
 
-        ui->leUsername->setText("");
-        ui->lePassword->setText("");
-        ui->leIP->setText("");
-        ui->lblWarning->setText("");
+        resetForm();
     }
     else if(!answer.compare("ERROR"))
     {
@@ -79,6 +77,14 @@ void Login::on_pbLogin_clicked()
         ui->lePassword->setText("");
         return;
     }
+}
+
+void Login::resetForm()
+{
+    ui->leUsername->setText("");
+    ui->lePassword->setText("");
+    ui->leIP->setText("");
+    ui->lblWarning->setText("");
 }
 
 
