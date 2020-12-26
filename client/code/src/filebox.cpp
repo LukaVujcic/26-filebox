@@ -17,8 +17,6 @@ FileBox::~FileBox()
     delete ui->twLocalFiles->model();
     delete ui->twRemoteFiles->model();
 
-    m_socket->close();
-
     delete m_socket;
     delete ui;
 }
