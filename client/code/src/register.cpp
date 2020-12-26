@@ -33,13 +33,20 @@ void Register::on_pbRegister_clicked()
     QString username = ui->leUsername->text();
     QString password = ui->lePassword->text();
     QString confirmPassword = ui->leConfirmPassword->text();
+    QString IPAddress = ui->leIP->text();
 
-    if(!checkInput(username, password, confirmPassword))
+    if(!checkInput(username, password, confirmPassword, IPAddress))
     {
         return;
     }
 
-    TCPClient socket("127.0.0.1", 5000);
+    TCPClient socket(IPAddress, 5000);
+
+    if(!socket.isValid() || !socket.waitForConnected()){
+        socket.close();
+        ui->lblWarning->setText("Wrong IP address");
+        return;
+    }
 
     socket.sendMessage("REGISTER\r\n");
     socket.sendMessage(username + "\n");
@@ -58,6 +65,7 @@ void Register::on_pbRegister_clicked()
         ui->leUsername->setText("");
         ui->lePassword->setText("");
         ui->leConfirmPassword->setText("");
+        ui->leIP->setText("");
 
         QMessageBox::information(this, "Register", "Registration was successful");
 
@@ -68,9 +76,9 @@ void Register::on_pbRegister_clicked()
     socket.close();
 }
 
-bool Register::checkInput(QString &username, QString &password, QString &confirmPassword)
+bool Register::checkInput(QString &username, QString &password, QString &confirmPassword, QString &IPAddress)
 {
-    if(username.size() == 0 || password.size() == 0 || confirmPassword.size() == 0)
+    if(username.size() == 0 || password.size() == 0 || confirmPassword.size() == 0 || IPAddress.size() == 0)
     {
         ui->lblWarning->setText("All lines need to be filled");
         return false;
@@ -86,3 +94,4 @@ bool Register::checkInput(QString &username, QString &password, QString &confirm
 
     return true;
 }
+
