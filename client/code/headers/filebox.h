@@ -35,5 +35,6 @@ private slots:
     void on_pbCopy_clicked();
     void on_pbPaste_clicked();
     void on_pbDelete_clicked();
+    void on_pbRename_clicked();
 };
 #endif // FILEBOX_H

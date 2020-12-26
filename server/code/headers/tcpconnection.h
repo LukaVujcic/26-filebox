@@ -11,6 +11,8 @@
 
 #include <filesystem>
 #include <vector>
+#include <climits>
+#include <string>
 
 namespace fs = std::filesystem;
 
@@ -45,6 +47,9 @@ private:
     bool is_delete_request(QByteArray& msg);
     bool is_register_request(QByteArray& msg);
     bool is_login_request(QByteArray& msg);
+    bool is_rename_request(QByteArray &msg);
+    bool is_clear_request(QByteArray &msg);
+
     bool checkUsername(const QString& username, QFile &file);
     bool checkProfile(const QString& username, const QString& password, QFile &file);
 
@@ -57,6 +62,8 @@ private:
 
 private:
     std::vector<fs::path> selected_files;
+    bool cut_clicked {false};
+    bool copy_clicked {false};
 
 protected:
     QList<QTcpSocket*> sockets;

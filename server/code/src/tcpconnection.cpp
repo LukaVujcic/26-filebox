@@ -120,6 +120,17 @@ bool TCPConnection::is_login_request(QByteArray& msg)
     return !QString(msg).compare(("LOGIN\n"));
 }
 
+bool TCPConnection::is_rename_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("RENAME\r\n"));
+}
+
+bool TCPConnection::is_clear_request(QByteArray& msg)
+{
+    return !QString(msg).compare(("CLEAR\r\n"));
+}
+
+
 void TCPConnection::readyRead()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
@@ -210,11 +221,40 @@ void TCPConnection::readyRead()
         socket->waitForReadyRead(1000);
         QString path = socket->readLine(1000);
 
-        QDir dir_path(path);
+        std::string new_folder {"New folder"};
 
-        // PROVERA
-        if(dir_path.exists())
-            dir_path.mkdir("new folder");
+        const fs::path parent_path {path.trimmed().toStdWString()};
+        const fs::path folder_path {parent_path / new_folder};
+
+        if(!fs::exists(folder_path))
+        {
+            fs::create_directory(folder_path);
+            qDebug() << "****Folder created succesfully!****";
+        }
+        else
+        {
+            // Kako cuvati sledecu slobodnu vrednost, a da ne pocinje uvek od 2?
+            // Problem sa magicnim promenljivama...
+            unsigned start = 2;
+
+            while(start <= ULONG_MAX)
+            {
+                std::string tmp_folder {new_folder + " (" + std::to_string(start) + ")"};
+                const fs::path new_folder_path {parent_path / tmp_folder};
+
+                if(fs::exists(new_folder_path))
+                {
+                    start++;
+                    continue;
+                }
+                else
+                {
+                    fs::create_directory(new_folder_path);
+                    break;
+                }
+            }
+            //qDebug() << "****Failed creating folder (folder exists)!****";
+        }
     }
 
 
@@ -223,13 +263,20 @@ void TCPConnection::readyRead()
     {
         qDebug() << "Cutting folder(s)... " << REQUEST;
 
+        // selected_files.clear();
+        cut_clicked = true;
+        copy_clicked = false;
+
         socket->waitForReadyRead(1000);
         QString file_path = socket->readLine(1000);
 
         qDebug() << file_path;
 
-        const fs::path file_name {file_path.toStdString()};
-        selected_files.push_back(file_name.filename());
+        selected_files.push_back(file_path.trimmed().toStdWString());
+
+        socket->write("OK\r\n");
+        socket->flush();
+        socket->waitForBytesWritten();
     }
 
 
@@ -238,12 +285,20 @@ void TCPConnection::readyRead()
     {
         qDebug() << "Copying... " << REQUEST;
 
+        //selected_files.clear();
+        cut_clicked = false;
+        copy_clicked = true;
+
         socket->waitForReadyRead(1000);
         QString file_path = socket->readLine(1000);
 
         qDebug() << file_path;
 
-        selected_files.push_back(file_path.trimmed().toStdString());
+        selected_files.push_back(file_path.trimmed().toStdWString());
+
+        socket->write("OK\r\n");
+        socket->flush();
+        socket->waitForBytesWritten();
     }
 
 
@@ -255,16 +310,21 @@ void TCPConnection::readyRead()
         socket->waitForReadyRead(1000);
         QString destination_path = socket->readLine(1000);
 
-        qDebug() << destination_path;
+        qDebug() << destination_path << "******";
 
-        for(const auto &source: selected_files)
+        try
         {
-            const fs::path destination {destination_path.toStdString()};
-
-            try
+            if(selected_files.empty())
             {
-                const fs::path file_name = source.filename();
-                const fs::path new_path = destination / file_name;
+                qDebug() << "*** Nothing selected! ***";
+            }
+
+            for(const auto &source: selected_files)
+            {
+                const fs::path destination {destination_path.toStdWString()};
+
+                const fs::path file_name {source.filename()};
+                const fs::path new_path {destination / file_name};
 
                 const auto copy_options = fs::copy_options::update_existing
                                         | fs::copy_options::recursive
@@ -277,14 +337,65 @@ void TCPConnection::readyRead()
 
                 fs::copy(source, new_path, copy_options);
             }
-            catch (const std::exception& e)
+
+            if(cut_clicked)
             {
-                qDebug() << e.what();
+                for(const auto &file: selected_files)
+                {
+                    std::uintmax_t n = fs::remove_all(file);
+
+                    if(n == static_cast<uintmax_t>(-1))
+                        qDebug() << "Nothing deleted";
+                }
+
+                selected_files.clear();
             }
         }
+        catch (const std::exception& e)
+        {
+            qDebug() << e.what();
+        }
+    }
 
-        // PROVERA
+    else if(is_rename_request(REQUEST))
+    {
+        qDebug() << "Renaming folder(s)... " << REQUEST;
+
+        socket->waitForReadyRead(1000);
+        QString file_path = socket->readLine(1000);
+
+        qDebug() << file_path;
+
+        socket->waitForReadyRead(1000);
+        QString input_name = socket->readLine(1000);
+
+        qDebug() << input_name;
+
+        try
+        {
+            const fs::path old_file_path {file_path.trimmed().toStdString()};
+            const fs::path parent_path {old_file_path.parent_path()};
+
+            const fs::path new_file_name {input_name.trimmed().toStdString()};
+            const fs::path new_file_path {parent_path / new_file_name};
+
+            rename(old_file_path, new_file_path);
+        }
+        catch (const std::exception& e)
+        {
+            qDebug() << e.what();
+        }
+    }
+
+
+
+    else if(is_clear_request(REQUEST))
+    {
         selected_files.clear();
+
+        socket->write("OK\r\n");
+        socket->flush();
+        socket->waitForBytesWritten();
     }
 
 
@@ -322,6 +433,8 @@ void TCPConnection::readyRead()
 
         file.close();
     }
+
+
     else if(is_login_request(REQUEST))
     {
         qDebug() << "Login" << REQUEST;
@@ -347,8 +460,9 @@ void TCPConnection::readyRead()
         }
 
         file.close();
-
     }
+
+
     else
     {
         qDebug() << "Delete folder(s)... "<< REQUEST<<"\n";
@@ -356,17 +470,34 @@ void TCPConnection::readyRead()
         socket->waitForReadyRead(1000);
         QString file_path = socket->readLine(1000);
 
-        QDir dir_path(file_path);
+        qDebug() << file_path;
 
-        // PROVERA
-        if(dir_path.exists())
-            dir_path.removeRecursively();
+        try
+        {
+            // delete izdvojiti u posebnu metodu koja ce se pozivati ovde i u paste funkciji
+
+            const fs::path file_name {file_path.trimmed().toStdWString()};
+            std::uintmax_t n = fs::remove_all(file_name);
+
+            if(n == static_cast<uintmax_t>(-1))
+                qDebug() << "Nothing deleted";
+            else
+                qDebug() << "Deleted " << n << "files or directories";
+        }
+        catch (const std::exception& e)
+        {
+            qDebug() << e.what();
+        }
+
+        socket->write("OK\r\n");
+        socket->flush();
+        socket->waitForBytesWritten();
     }
 
     active();
 }
 
-bool TCPConnection::checkUsername(const QString& username, QFile &file)
+bool TCPConnection::checkUsername(const QString &username, QFile &file)
 {
     file.open(QIODevice::ReadWrite | QIODevice::Text);
     while (!file.atEnd())
@@ -383,7 +514,7 @@ bool TCPConnection::checkUsername(const QString& username, QFile &file)
     return false;
 }
 
-bool TCPConnection::checkProfile(const QString& username, const QString& password, QFile &file)
+bool TCPConnection::checkProfile(const QString &username, const QString &password, QFile &file)
 {
     file.open(QIODevice::ReadWrite | QIODevice::Text);
     while (!file.atEnd())
@@ -433,7 +564,7 @@ void TCPConnection::error(QAbstractSocket::SocketError socketError)
 
 QTcpSocket *TCPConnection::createSocket()
 {
-    qDebug() << this << " creating socket";
+    qDebug() << this << "Creating socket...";
 
     QTcpSocket *socket = new QTcpSocket(this);
 
@@ -449,6 +580,6 @@ QTcpSocket *TCPConnection::createSocket()
 
 void TCPConnection::active()
 {
-    qDebug() << this << "socket active";
+    qDebug() << this << "Socket active";
     activity = QTime::currentTime();
 }
