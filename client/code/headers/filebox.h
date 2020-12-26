@@ -23,7 +23,6 @@ public:
 
     void setFormLogin(Login *l);
     void setSocket(TCPClient* socket);
-
 private:
     Ui::FileBox *ui;
     TCPClient *m_socket;
@@ -36,6 +35,7 @@ private slots:
     void on_pbCopy_clicked();
     void on_pbPaste_clicked();
     void on_pbDelete_clicked();
+    void on_pbRename_clicked();
     void on_pbDownload_clicked();
 };
 #endif // FILEBOX_H

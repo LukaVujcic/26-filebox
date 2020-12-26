@@ -8,11 +8,13 @@
 #include <QFile>
 #include <QDir>
 #include <QString>
-#include <QMap>
+
 #include <filesystem>
 #include <zipper/unzipper.h>
 #include <zipper/zipper.h>
 #include <vector>
+#include <climits>
+#include <string>
 using namespace zipper;
 
 namespace fs = std::filesystem;
@@ -50,6 +52,9 @@ private:
     bool is_delete_request(QByteArray& msg);
     bool is_register_request(QByteArray& msg);
     bool is_login_request(QByteArray& msg);
+    bool is_rename_request(QByteArray &msg);
+    bool is_clear_request(QByteArray &msg);
+
     bool checkUsername(const QString& username, QFile &file);
     bool checkProfile(const QString& username, const QString& password, QFile &file);
     bool is_filesystem_request(QByteArray& msg);
@@ -63,7 +68,8 @@ private:
 
 private:
     std::vector<fs::path> selected_files;
-    QMap<QTcpSocket*, QString> users_map;
+    bool cut_clicked {false};
+    bool copy_clicked {false};
 
 protected:
     QList<QTcpSocket*> sockets;
