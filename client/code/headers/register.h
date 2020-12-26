@@ -23,6 +23,6 @@ private slots:
 private:
     Ui::Register *ui;
 
-    bool checkInput(QString &username, QString &password, QString &confirmPassword);
+    bool checkInput(QString &username, QString &password, QString &confirmPassword, QString &IPAddress);
 };
 #endif // REGISTER_H

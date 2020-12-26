@@ -29,6 +29,8 @@ void Login::on_pbRegister_clicked()
 {
    hide();
    m_reg->show();
+
+   resetForm();
 }
 
 void Login::setFormRegister(Register *r)
@@ -42,33 +44,47 @@ void Login::on_pbLogin_clicked()
     QString password = ui->lePassword->text();
     QString IPAddress = ui->leIP->text();
 
-
     if(username.size() == 0) return;
     if(password.size() == 0) return;
     if(IPAddress.size() == 0) return;
 
-    TCPClient socket("127.0.0.1", 5000);
+    TCPClient *socket = new TCPClient(IPAddress, 5000);
 
-    socket.sendMessage("LOGIN\n");
-    socket.sendMessage(username + "\n");
-    socket.sendMessage(password);
+    if(!socket->isValid() || !socket->waitForConnected(1)){
+        socket->close();
+        ui->lblWarning->setText("Connection not established!");
+        return;
+    }
 
-    socket.waitForReadyRead();
-    QString answer = socket.readLine();
+    socket->sendMessage("LOGIN\r\n");
+    socket->sendMessage(username + "\n");
+    socket->sendMessage(password);
+
+    socket->waitForReadyRead();
+    QString answer = socket->readLine();
 
     if(!answer.compare("CONTINUE"))
     {
+        qobject_cast<FileBox*>(parentWidget())->setSocket(socket);
         hide();
         parentWidget()->show();
+
+        resetForm();
     }
     else if(!answer.compare("ERROR"))
     {
         ui->lblWarning->setText("Wrong username or password");
+        ui->lePassword->setText("");
+        return;
     }
+}
 
-    socket.close();
-
-    qobject_cast<FileBox*>(parentWidget())->setSocket(new TCPClient("127.0.0.1",5000));
+void Login::resetForm()
+{
+    ui->leUsername->setText("");
+    ui->lePassword->setText("");
+    ui->leIP->setText("");
+    ui->lblWarning->setText("");
 }
 
 

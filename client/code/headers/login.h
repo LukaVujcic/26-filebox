@@ -33,5 +33,7 @@ private:
     Ui::Login *ui;
 
     Register *m_reg;
+
+    void resetForm();
 };
 #endif // LOGIN_H

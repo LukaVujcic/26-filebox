@@ -35,9 +35,9 @@ void FileBox::paintEvent(QPaintEvent*)
     style()->drawPrimitive(QStyle::PE_Widget, &option, &painter, this);
 }
 
-void FileBox::setFormLogin(Login *log)
+void FileBox::setFormLogin(Login *login)
 {
-    login = log;
+    m_login = login;
 }
 
 void FileBox::setSocket(TCPClient *socket)

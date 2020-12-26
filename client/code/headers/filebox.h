@@ -26,7 +26,7 @@ public:
 private:
     Ui::FileBox *ui;
     TCPClient *m_socket;
-    Login *login;
+    Login *m_login;
 private slots:
     void on_pbUpload_clicked();
 

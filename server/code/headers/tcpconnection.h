@@ -8,13 +8,14 @@
 #include <QFile>
 #include <QDir>
 #include <QString>
-
+#include <QMap>
 #include <filesystem>
 #include <zipper/unzipper.h>
 #include <zipper/zipper.h>
 #include <vector>
 #include <climits>
 #include <string>
+#include <QCryptographicHash>
 using namespace zipper;
 
 namespace fs = std::filesystem;

@@ -33,15 +33,22 @@ void Register::on_pbRegister_clicked()
     QString username = ui->leUsername->text();
     QString password = ui->lePassword->text();
     QString confirmPassword = ui->leConfirmPassword->text();
+    QString IPAddress = ui->leIP->text();
 
-    if(!checkInput(username, password, confirmPassword))
+    if(!checkInput(username, password, confirmPassword, IPAddress))
     {
         return;
     }
 
-    TCPClient socket("127.0.0.1", 5000);
+    TCPClient socket(IPAddress, 5000);
 
-    socket.sendMessage("REGISTER\n");
+    if(!socket.isValid() || !socket.waitForConnected()){
+        socket.close();
+        ui->lblWarning->setText("Connection not established!");
+        return;
+    }
+
+    socket.sendMessage("REGISTER\r\n");
     socket.sendMessage(username + "\n");
     socket.sendMessage(password);
 
@@ -58,19 +65,24 @@ void Register::on_pbRegister_clicked()
         ui->leUsername->setText("");
         ui->lePassword->setText("");
         ui->leConfirmPassword->setText("");
+        ui->leIP->setText("");
 
         QMessageBox::information(this, "Register", "Registration was successful");
 
         hide();
         parentWidget()->show();
     }
+    else if(!answer.compare("ERROR"))
+    {
+        ui->lblWarning->setText("Can't use that password");
+    }
 
     socket.close();
 }
 
-bool Register::checkInput(QString &username, QString &password, QString &confirmPassword)
+bool Register::checkInput(QString &username, QString &password, QString &confirmPassword, QString &IPAddress)
 {
-    if(username.size() == 0 || password.size() == 0 || confirmPassword.size() == 0)
+    if(username.size() == 0 || password.size() == 0 || confirmPassword.size() == 0 || IPAddress.size() == 0)
     {
         ui->lblWarning->setText("All lines need to be filled");
         return false;
@@ -82,7 +94,13 @@ bool Register::checkInput(QString &username, QString &password, QString &confirm
         return false;
     }
 
+    if(username.contains(" ") || password.contains(" ")){
+        ui->lblWarning->setText("Can't use blank space");
+        return false;
+    }
+
 
 
     return true;
 }
+

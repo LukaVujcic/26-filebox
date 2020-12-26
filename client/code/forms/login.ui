@@ -86,6 +86,10 @@ QLineEdit{
 
 #lblWarning{
 	color: red;
+}
+
+#lblWait{
+	color: grey;
 }</string>
   </property>
   <widget class="QFrame" name="frame">
@@ -115,9 +119,9 @@ QLineEdit{
    <widget class="QLabel" name="lblLogin">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>205</x>
       <y>30</y>
-      <width>61</width>
+      <width>81</width>
       <height>61</height>
      </rect>
     </property>
@@ -206,6 +210,19 @@ QLineEdit{
     </property>
    </widget>
    <widget class="QLabel" name="lblWarning">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>290</y>
+      <width>421</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblWait">
     <property name="geometry">
      <rect>
       <x>30</x>
