@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>670</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>800</width>
-    <height>600</height>
+    <height>670</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>800</width>
-    <height>600</height>
+    <height>670</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -92,13 +92,19 @@ QLineEdit{
      <x>160</x>
      <y>80</y>
      <width>480</width>
-     <height>450</height>
+     <height>520</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>520</height>
+    </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>480</width>
-     <height>450</height>
+     <height>520</height>
     </size>
    </property>
    <property name="frameShape">
@@ -111,7 +117,7 @@ QLineEdit{
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>370</y>
+      <y>440</y>
       <width>421</width>
       <height>61</height>
      </rect>
@@ -185,13 +191,29 @@ QLineEdit{
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>290</y>
+      <y>360</y>
       <width>421</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leIP">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>310</y>
+      <width>421</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="inputMask">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>IP Address</string>
     </property>
    </widget>
   </widget>

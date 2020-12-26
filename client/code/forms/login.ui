@@ -115,9 +115,9 @@ QLineEdit{
    <widget class="QLabel" name="lblLogin">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>205</x>
       <y>30</y>
-      <width>61</width>
+      <width>81</width>
       <height>61</height>
      </rect>
     </property>

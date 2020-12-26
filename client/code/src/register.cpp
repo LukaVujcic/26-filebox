@@ -41,7 +41,7 @@ void Register::on_pbRegister_clicked()
 
     TCPClient socket("127.0.0.1", 5000);
 
-    socket.sendMessage("REGISTER\n");
+    socket.sendMessage("REGISTER\r\n");
     socket.sendMessage(username + "\n");
     socket.sendMessage(password);
 

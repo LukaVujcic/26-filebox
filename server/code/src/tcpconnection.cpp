@@ -127,12 +127,12 @@ bool TCPConnection::is_delete_request(QByteArray& msg)
 
 bool TCPConnection::is_register_request(QByteArray& msg)
 {
-    return !QString(msg).compare(("REGISTER\n"));
+    return !QString(msg).compare(("REGISTER\r\n"));
 }
 
 bool TCPConnection::is_login_request(QByteArray& msg)
 {
-    return !QString(msg).compare(("LOGIN\n"));
+    return !QString(msg).compare(("LOGIN\r\n"));
 }
 
 void display_files_in_folder(QString current_path, QString original_path, Zipper& zip, QString user)
