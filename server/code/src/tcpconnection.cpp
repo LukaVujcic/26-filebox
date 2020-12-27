@@ -210,7 +210,7 @@ void TCPConnection::sendFile(QString filePath){
     //qDebug()<<filePath;
     if(!file.open(QIODevice::ReadOnly))
         return ;
-    const int chunckSize=1024*1024;
+    const int chunckSize=1024*1024*10;
     char *chunk=new char[chunckSize+1];
     int total=0;
     qint64 fileSize=file.size();

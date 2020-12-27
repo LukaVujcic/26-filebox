@@ -94,8 +94,8 @@ void TCPClient::receiveFile(const QString& filePath)
     this->waitForReadyRead(-1);
     QString fileSizeStr=this->readLine(3000);
     bool flag=0;
-    qint64 bytesFile=fileSizeStr.left(fileSizeStr.length()-4).toLongLong(&flag,10);
-    const int chunckSize=1024*1024;
+    qint64 bytesFile=fileSizeStr.trimmed().toLongLong(&flag,10);
+    const int chunckSize=1024*1024*10;
     char *chunk=new char[chunckSize+1];
     int bytesRead;
     int total=0;
@@ -135,6 +135,11 @@ void TCPClient::receiveFile(const QString& filePath)
 QString TCPClient::fileSystemRequest()
 {
     QString pathFile="filesystem.zip";
+    QFile zip(pathFile);
+    if (zip.exists())
+    {
+        zip.remove();
+    }
     this->sendMessage("FILESYSTEM\r\n");
     this->receiveFile(pathFile);
     //this->sendMessage("Ok\r\n");
