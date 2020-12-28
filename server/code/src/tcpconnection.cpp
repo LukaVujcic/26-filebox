@@ -238,6 +238,7 @@ void TCPConnection::sendFile(QString filePath){
 void TCPConnection::readyRead()
 {
     QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
+    QString userFolder = QDir("../users/admin").absolutePath();
 
     qDebug()<<socket->ConnectedState;
     qDebug()<<"Enter readyRead!";
@@ -384,9 +385,15 @@ void TCPConnection::readyRead()
         qDebug() << "Creating new folder.... " << REQUEST;
 
         socket->waitForReadyRead(1000);
-        QString path = socket->readLine(1000);
+        std::string new_folder = (socket->readLine(1000)).trimmed().toStdString();
 
-        std::string new_folder {"New folder"};
+        socket->waitForReadyRead(1000);
+        QString path = userFolder + socket->readLine(1000);
+
+        //std::string new_folder {"New folder"};
+
+        //qDebug() << name;
+        //std::string new_folder = name.toStdString();
 
         const fs::path parent_path {path.trimmed().toStdWString()};
         const fs::path folder_path {parent_path / new_folder};
@@ -433,7 +440,7 @@ void TCPConnection::readyRead()
         copy_clicked = false;
 
         socket->waitForReadyRead(1000);
-        QString file_path = socket->readLine(1000);
+        QString file_path = userFolder + socket->readLine(1000);
 
         qDebug() << file_path;
 
@@ -455,7 +462,7 @@ void TCPConnection::readyRead()
         copy_clicked = true;
 
         socket->waitForReadyRead(1000);
-        QString file_path = socket->readLine(1000);
+        QString file_path = userFolder + socket->readLine(1000);
 
         qDebug() << file_path;
 
@@ -473,7 +480,7 @@ void TCPConnection::readyRead()
         qDebug() << "Pasting folder(s)... " << REQUEST;
 
         socket->waitForReadyRead(1000);
-        QString destination_path = socket->readLine(1000);
+        QString destination_path = userFolder + socket->readLine(1000);
 
         qDebug() << destination_path << "******";
 
@@ -526,7 +533,7 @@ void TCPConnection::readyRead()
         qDebug() << "Renaming folder(s)... " << REQUEST;
 
         socket->waitForReadyRead(1000);
-        QString file_path = socket->readLine(1000);
+        QString file_path = userFolder + socket->readLine(1000);
 
         qDebug() << file_path;
 
@@ -535,19 +542,22 @@ void TCPConnection::readyRead()
 
         qDebug() << input_name;
 
-        try
+        if(input_name.compare("ERROR\r\n") != 0)
         {
-            const fs::path old_file_path {file_path.trimmed().toStdString()};
-            const fs::path parent_path {old_file_path.parent_path()};
+            try
+            {
+                const fs::path old_file_path {file_path.trimmed().toStdString()};
+                const fs::path parent_path {old_file_path.parent_path()};
 
-            const fs::path new_file_name {input_name.trimmed().toStdString()};
-            const fs::path new_file_path {parent_path / new_file_name};
+                const fs::path new_file_name {input_name.trimmed().toStdString()};
+                const fs::path new_file_path {parent_path / new_file_name};
 
-            rename(old_file_path, new_file_path);
-        }
-        catch (const std::exception& e)
-        {
-            qDebug() << e.what();
+                rename(old_file_path, new_file_path);
+            }
+            catch (const std::exception& e)
+            {
+                qDebug() << e.what();
+            }
         }
     }
 
@@ -638,12 +648,12 @@ void TCPConnection::readyRead()
             file.close();
 
         }
-    else
+    else if(is_delete_request(REQUEST))
     {
         qDebug() << "Delete folder(s)... "<< REQUEST<<"\n";
 
         socket->waitForReadyRead(1000);
-        QString file_path = socket->readLine(1000);
+        QString file_path = userFolder + socket->readLine(1000);
 
         qDebug() << file_path;
 
@@ -667,6 +677,10 @@ void TCPConnection::readyRead()
         socket->write("OK\r\n");
         socket->flush();
         socket->waitForBytesWritten();
+    }
+    else
+    {
+        qDebug() << "Nepoznat request";
     }
 
     active();
