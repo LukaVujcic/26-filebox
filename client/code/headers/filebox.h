@@ -27,6 +27,7 @@ private:
     Ui::FileBox *ui;
     TCPClient *m_socket;
     Login *m_login;
+    QString userFolder;
 private slots:
     void on_pbUpload_clicked();
 

@@ -14,6 +14,8 @@ FileBox::FileBox(QWidget *parent):
     ui->twRemoteFiles->hideColumn(1);
     ui->twRemoteFiles->setColumnWidth(0, 200);
     ui->twLocalFiles->setColumnWidth(0, 200);
+
+    userFolder = QDir("filesystem/filesystem").absolutePath();
 }
 
 FileBox::~FileBox()
@@ -81,13 +83,15 @@ void FileBox::on_pbNewFolder_clicked()
     m_socket->sendMessage("NEW FOLDER\r\n");
     qDebug() << "Creating new folder...";
 
+    m_socket->sendMessage("New folder\r\n");
+
     if(files.isEmpty() && (folders.size() == 1 || folders.isEmpty()))
     {
         QString destination = (folders.size() == 1) ? folders[0] : "";
 
         qDebug() << destination;
 
-        m_socket->sendMessage(destination);
+        m_socket->sendMessage(destination.right(destination.size() - userFolder.size()));
     }
     else
     {
@@ -108,7 +112,7 @@ void FileBox::on_pbCut_clicked()
     {
         m_socket->sendMessage("CUT\r\n");
         qDebug() << folder;
-        m_socket->sendMessage(folder);
+        m_socket->sendMessage(folder.right(folder.size() - userFolder.size()) + "\r\n");
 
         m_socket->waitForReadyRead(-1);
         qDebug() << m_socket->readLine(1000);
@@ -118,7 +122,7 @@ void FileBox::on_pbCut_clicked()
     {
         m_socket->sendMessage("CUT\r\n");
         qDebug() << file;
-        m_socket->sendMessage(file);
+        m_socket->sendMessage(file.right(file.size() - userFolder.size()) + "\r\n");
 
         m_socket->waitForReadyRead(-1);
         qDebug() << m_socket->readLine(1000);
@@ -138,7 +142,7 @@ void FileBox::on_pbCopy_clicked()
     {
         m_socket->sendMessage("COPY\r\n");
         qDebug() << folder;
-        m_socket->sendMessage(folder + "\r\n");
+        m_socket->sendMessage(folder.right(folder.size() - userFolder.size()) + "\r\n");
 
         m_socket->waitForReadyRead(-1);
         qDebug() << m_socket->readLine(1000);
@@ -148,7 +152,7 @@ void FileBox::on_pbCopy_clicked()
     {
         m_socket->sendMessage("COPY\r\n");
         qDebug() << file;
-        m_socket->sendMessage(file + "\r\n");
+        m_socket->sendMessage(file.right(file.size() - userFolder.size()) + "\r\n");
 
         m_socket->waitForReadyRead(-1);
         qDebug() << m_socket->readLine(1000);
@@ -163,7 +167,7 @@ void FileBox::on_pbPaste_clicked()
 
     if(files.isEmpty() && (folders.size() == 1 || folders.isEmpty()))
     {
-        QString destination = (folders.size() == 1) ? folders[0] : "";
+        QString destination = (folders.size() == 1) ? folders[0].right(folders[0].size() - userFolder.size()) : "";
 
         qDebug() << destination;
 
@@ -171,7 +175,7 @@ void FileBox::on_pbPaste_clicked()
     }
     else
     {
-        qDebug() << "Please, select just one folder!";
+        QMessageBox::warning(this, "Paste", "Please, select just one folder!");
     }
 }
 
@@ -185,7 +189,7 @@ void FileBox::on_pbDelete_clicked()
     {
         m_socket->sendMessage("DELETE\r\n");
         qDebug() << folder;
-        m_socket->sendMessage(folder + "\r\n");
+        m_socket->sendMessage(folder.right(folder.size() - userFolder.size()) + "\r\n");
 
         m_socket->waitForReadyRead(-1);
         qDebug() << m_socket->readLine(1000);
@@ -195,7 +199,7 @@ void FileBox::on_pbDelete_clicked()
     {
         m_socket->sendMessage("DELETE\r\n");
         qDebug() << file;
-        m_socket->sendMessage(file + "\r\n");
+        m_socket->sendMessage(file.right(file.size() - userFolder.size()) + "\r\n");
 
         m_socket->waitForReadyRead(-1);
         qDebug() << m_socket->readLine(1000);
@@ -210,16 +214,19 @@ void FileBox::on_pbRename_clicked()
     if(folders.size() == 1 && files.isEmpty())
     {
         qDebug() << folders[0];
-        m_socket->sendMessage(folders[0] + "\r\n");
+        m_socket->sendMessage(folders[0].right(folders[0].size() - userFolder.size()) + "\r\n");
     }
     else if(files.size() == 1 && folders.isEmpty())
     {
         qDebug() << files[0];
-        m_socket->sendMessage(files[0] + "\r\n");
+        m_socket->sendMessage(files[0].right(files[0].size() - userFolder.size()) + "\r\n");
     }
     else
     {
-        qDebug() << "Lose selektovanje";
+        //qDebug() << "Lose selektovanje";
+        QMessageBox::warning(this, "Rename", "Please, select just one file!");
+        m_socket->sendMessage("ERROR\r\n");
+        return;
     }
 
     m_socket->sendMessage(ui->txtEdit->toPlainText().trimmed() + "\r\n");
