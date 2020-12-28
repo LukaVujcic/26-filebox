@@ -8,6 +8,16 @@ FileBox::FileBox(QWidget *parent):
     QWidget(parent), ui(new Ui::FileBox)
 {
     ui->setupUi(this);
+    connect(ui->pbUpload,&QPushButton::clicked,this,&FileBox::pbUpload_clicked);
+    connect(ui->pbCut,&QPushButton::clicked,this,&FileBox::pbCut_clicked);
+    connect(ui->pbCopy,&QPushButton::clicked,this,&FileBox::pbCopy_clicked);
+    connect(ui->pbDelete,&QPushButton::clicked,this,&FileBox::pbDelete_clicked);
+    connect(ui->pbNewFolder,&QPushButton::clicked,this,&FileBox::pbNewFolder_clicked);
+    connect(ui->pbDownload,&QPushButton::clicked,this,&FileBox::pbDownload_clicked);
+    connect(ui->pbPaste,&QPushButton::clicked,this,&FileBox::pbPaste_clicked);
+    connect(ui->pbRename,&QPushButton::clicked,this,&FileBox::pbRename_clicked);
+
+
     ui->twLocalFiles->setViewFolder("");
     ui->twRemoteFiles->setViewFolder("");
 
@@ -45,10 +55,9 @@ void FileBox::setSocket(TCPClient *socket)
     m_socket = socket;
 }
 
-void FileBox::on_pbUpload_clicked()
+void FileBox::pbUpload_clicked()
 {
     //TCPClient socket("127.0.0.1", 5000);
-
     auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
     auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
 
@@ -74,8 +83,8 @@ void FileBox::on_pbUpload_clicked()
     //socket.close();
 }
 
-void FileBox::on_pbNewFolder_clicked()
-{   
+void FileBox::pbNewFolder_clicked()
+{
     auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
     m_socket->sendMessage("NEW FOLDER\r\n");
@@ -95,7 +104,7 @@ void FileBox::on_pbNewFolder_clicked()
     }
 }
 
-void FileBox::on_pbCut_clicked()
+void FileBox::pbCut_clicked()
 {
     auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
@@ -104,7 +113,7 @@ void FileBox::on_pbCut_clicked()
     m_socket->waitForReadyRead(-1);
     qDebug() << m_socket->readLine(1000);
 
-    for(const auto &folder: folders)
+    for(const auto &folder: qAsConst(folders))
     {
         m_socket->sendMessage("CUT\r\n");
         qDebug() << folder;
@@ -114,7 +123,7 @@ void FileBox::on_pbCut_clicked()
         qDebug() << m_socket->readLine(1000);
     }
 
-    for(const auto &file: files)
+    for(const auto &file: qAsConst(files))
     {
         m_socket->sendMessage("CUT\r\n");
         qDebug() << file;
@@ -125,7 +134,7 @@ void FileBox::on_pbCut_clicked()
     }
 }
 
-void FileBox::on_pbCopy_clicked()
+void FileBox::pbCopy_clicked()
 {
     auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
@@ -134,7 +143,7 @@ void FileBox::on_pbCopy_clicked()
     m_socket->waitForReadyRead(-1);
     qDebug() << m_socket->readLine(1000);
 
-    for(const auto &folder: folders)
+    for(const auto &folder: qAsConst(folders))
     {
         m_socket->sendMessage("COPY\r\n");
         qDebug() << folder;
@@ -144,7 +153,7 @@ void FileBox::on_pbCopy_clicked()
         qDebug() << m_socket->readLine(1000);
     }
 
-    for(const auto &file: files)
+    for(const auto &file: qAsConst(files))
     {
         m_socket->sendMessage("COPY\r\n");
         qDebug() << file;
@@ -155,7 +164,7 @@ void FileBox::on_pbCopy_clicked()
     }
 }
 
-void FileBox::on_pbPaste_clicked()
+void FileBox::pbPaste_clicked()
 {
     m_socket->sendMessage("PASTE\r\n");
 
@@ -175,13 +184,13 @@ void FileBox::on_pbPaste_clicked()
     }
 }
 
-void FileBox::on_pbDelete_clicked()
+void FileBox::pbDelete_clicked()
 {
 
 
     auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
-    for(const auto &folder: folders)
+    for(const auto &folder: qAsConst(folders))
     {
         m_socket->sendMessage("DELETE\r\n");
         qDebug() << folder;
@@ -191,7 +200,7 @@ void FileBox::on_pbDelete_clicked()
         qDebug() << m_socket->readLine(1000);
     }
 
-    for(const auto &file: files)
+    for(const auto &file: qAsConst(files))
     {
         m_socket->sendMessage("DELETE\r\n");
         qDebug() << file;
@@ -201,7 +210,7 @@ void FileBox::on_pbDelete_clicked()
         qDebug() << m_socket->readLine(1000);
     }
 }
-void FileBox::on_pbRename_clicked()
+void FileBox::pbRename_clicked()
 {
     m_socket->sendMessage("RENAME\r\n");
 
@@ -226,7 +235,7 @@ void FileBox::on_pbRename_clicked()
 }
 
 
-void FileBox::on_pbDownload_clicked(){
+void FileBox::pbDownload_clicked(){
     //qDebug()<<QDateTime::currentMSecsSinceEpoch();
     auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
     auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();

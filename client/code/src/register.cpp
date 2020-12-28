@@ -11,6 +11,7 @@ Register::Register(QWidget *parent)
     , ui(new Ui::Register)
 {
     ui->setupUi(this);
+    connect(ui->pbRegister,&QPushButton::clicked,this,&Register::pbRegister_clicked);
     setWindowFlag(Qt::Window);
 }
 
@@ -28,7 +29,7 @@ void Register::paintEvent(QPaintEvent *)
 }
 
 
-void Register::on_pbRegister_clicked()
+void Register::pbRegister_clicked()
 {
     QString username = ui->leUsername->text();
     QString password = ui->lePassword->text();

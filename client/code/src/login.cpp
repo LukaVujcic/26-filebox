@@ -8,6 +8,8 @@ Login::Login(QWidget *parent)
     , ui(new Ui::Login)
 {
     ui->setupUi(this);
+    connect(ui->pbLogin,&QPushButton::clicked,this,&Login::pbLogin_clicked);
+    connect(ui->pbRegister,&QPushButton::clicked,this,&Login::pbRegister_clicked);
     setWindowFlag(Qt::Window);
 }
 
@@ -25,7 +27,7 @@ void Login::paintEvent(QPaintEvent*)
 }
 
 
-void Login::on_pbRegister_clicked()
+void Login::pbRegister_clicked()
 {
    hide();
    m_reg->show();
@@ -38,7 +40,7 @@ void Login::setFormRegister(Register *r)
     m_reg = r;
 }
 
-void Login::on_pbLogin_clicked()
+void Login::pbLogin_clicked()
 {
     QString username = ui->leUsername->text();
     QString password = ui->lePassword->text();
