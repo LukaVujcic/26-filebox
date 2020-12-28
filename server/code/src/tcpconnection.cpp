@@ -313,12 +313,12 @@ void TCPConnection::readyRead()
     {
         socket->waitForReadyRead(1000);
         QByteArray file_path = socket->readLine(1000);
+        const char* user_path = "../users/admin";
         qDebug()<<file_path;
 
         qDebug()<<"Request: "<<REQUEST<<" file path: "<<file_path<<"\n";
         qDebug()<<"File content: "<<"\n";
-        /*TODO Srediti putanje*/
-        QFile f(QString(file_path).trimmed());
+        QFile f((QString(user_path)+QString(file_path)).trimmed());
 
         //QFile f(QString("C:/Users/bozam/Desktop/preko_mreze.txt").trimmed());
 

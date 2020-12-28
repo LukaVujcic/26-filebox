@@ -24,15 +24,13 @@ FileBox::FileBox(QWidget *parent):
     ui->twRemoteFiles->hideColumn(1);
     ui->twRemoteFiles->setColumnWidth(0, 200);
     ui->twLocalFiles->setColumnWidth(0, 200);
+
 }
 
 FileBox::~FileBox()
 {
     delete ui->twLocalFiles->model();
     delete ui->twRemoteFiles->model();
-
-
-
     delete m_socket;
     delete ui;
 }
@@ -53,6 +51,7 @@ void FileBox::setFormLogin(Login *login)
 void FileBox::setSocket(TCPClient *socket)
 {
     m_socket = socket;
+    ui->twRemoteFiles->getServerFilesystem(m_socket);
 }
 
 void FileBox::pbUpload_clicked()
@@ -64,23 +63,29 @@ void FileBox::pbUpload_clicked()
     if(remoteFolders.size() + remoteFiles.size() > 1)
     {
         QMessageBox::warning(this, "Upload", "Only one folder can be selected!");
+        return;
     }
     else if(remoteFiles.size() > 0)
     {
         QMessageBox::warning(this, "Upload", "Folder can be selected!");
+        return;
     }
-
-
-    /*socket.sendMessage("UPLOAD\r\n");
-    socket.sendMessage("C:\\Users\\Petar\\Desktop\\testSlanje.png\r\n");
-    socket.sendFile("C:\\Users\\Petar\\Desktop\\warning_1_filebox.png");
-
-    socket.waitForReadyRead(-1);
-    qDebug() << socket.readLine(1000);*/
-
+    if (localFolders.size() + localFiles.size() == 0)
+    {   QMessageBox::warning(this, "Upload", "Nothing selected for upload!");
+        return;
+    }
+    if (remoteFolders.size()==1)
+    {
+        auto rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
+        auto serverPath=remoteFolders[0].right(remoteFolders[0].length()-rootPath.length());
+        m_socket->sendAll(localFiles,localFolders,serverPath);
+    }
+    if (remoteFolders.size()==0)
+    {
+        m_socket->sendAll(localFiles,localFolders);
+    }
     ui->twRemoteFiles->getServerFilesystem(m_socket);
-    //socket.sendAll(localFiles,localFolders);
-    //socket.close();
+
 }
 
 void FileBox::pbNewFolder_clicked()
@@ -186,8 +191,6 @@ void FileBox::pbPaste_clicked()
 
 void FileBox::pbDelete_clicked()
 {
-
-
     auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
     for(const auto &folder: qAsConst(folders))
@@ -236,31 +239,18 @@ void FileBox::pbRename_clicked()
 
 
 void FileBox::pbDownload_clicked(){
-    //qDebug()<<QDateTime::currentMSecsSinceEpoch();
     auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
     auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
+
+    if (localFiles.size()==0){
+        QMessageBox::warning(this, "Download", "File is selected! Only folder can be selected!");
+        return;
+    }
+    if (localFolders.size()>1){
+        QMessageBox::warning(this, "Download", "Multiple folders selected! Please select at most one folder!");
+        return;
+    }
     auto rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
     m_socket->downloadRequest(remoteFiles,remoteFolders,localFolders[0],rootPath);
-
-//    QVector<QString> selected;
-//    selected=remoteFolders;
-//    for (const auto& file:remoteFiles){
-//        selected.push_back(file);
-//    }
-//    for (const auto& selectItem: selected)
-//    {
-//        //qDebug()<<folder;
-//        //qDebug()<<dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-//        auto rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-//        auto itemPath=selectItem.right(selectItem.length()-rootPath.length());
-//        qDebug()<<itemPath;
-//        m_socket->downloadRequest(itemPath);
-//        QFileInfo qfi(selectItem);
-//        m_socket->receiveFile(qfi.fileName());
-//    }
-
-
-
-
 }
 

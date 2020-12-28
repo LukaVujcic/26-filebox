@@ -14,11 +14,11 @@ Q_OBJECT
 public:
     TCPClient(QString ip,quint16 port);
     void sendMessage(const QString& message);
-    void sendAll(const QVector<QString> &files,const QVector<QString>&folders);
+    void sendAll(const QVector<QString> &files,const QVector<QString>&folders,const QString& serverPath="");
     void downloadRequest(const QVector<QString>& remoteFiles, const QVector<QString> &remoteFolders, const QString &localFolder,const QString &rootPath);
     QString fileSystemRequest();
 private:
-    void folderTraversal(QString rootFolderPath);
+    void folderTraversal(QString rootFolderPath,const QString& serverPath);
     void sendFile(const QString &filePath);
     void uploadRequest(const QString& pathLocal,const QString& pathRemote);
     void newFolderRequest(const QString& pathRemote);
