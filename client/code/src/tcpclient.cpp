@@ -171,7 +171,7 @@ void TCPClient::downloadRequest(const QVector<QString>& remoteFiles, const QVect
         }
         this->sendMessage("DOWNLOAD\r\n");
         this->sendMessage((QString::number(selected.size())+"\r\n").toLocal8Bit().data());
-        for (const auto& selectItem: selected)
+        for (const auto& selectItem: qAsConst(selected))
         {
             auto itemPath=selectItem.right(selectItem.length()-rootPath.length());
             qDebug()<<itemPath;

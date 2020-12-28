@@ -113,7 +113,7 @@ void FileBox::pbCut_clicked()
     m_socket->waitForReadyRead(-1);
     qDebug() << m_socket->readLine(1000);
 
-    for(const auto &folder: folders)
+    for(const auto &folder: qAsConst(folders))
     {
         m_socket->sendMessage("CUT\r\n");
         qDebug() << folder;
@@ -123,7 +123,7 @@ void FileBox::pbCut_clicked()
         qDebug() << m_socket->readLine(1000);
     }
 
-    for(const auto &file: files)
+    for(const auto &file: qAsConst(files))
     {
         m_socket->sendMessage("CUT\r\n");
         qDebug() << file;
@@ -143,7 +143,7 @@ void FileBox::pbCopy_clicked()
     m_socket->waitForReadyRead(-1);
     qDebug() << m_socket->readLine(1000);
 
-    for(const auto &folder: folders)
+    for(const auto &folder: qAsConst(folders))
     {
         m_socket->sendMessage("COPY\r\n");
         qDebug() << folder;
@@ -153,7 +153,7 @@ void FileBox::pbCopy_clicked()
         qDebug() << m_socket->readLine(1000);
     }
 
-    for(const auto &file: files)
+    for(const auto &file: qAsConst(files))
     {
         m_socket->sendMessage("COPY\r\n");
         qDebug() << file;
@@ -190,7 +190,7 @@ void FileBox::pbDelete_clicked()
 
     auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
-    for(const auto &folder: folders)
+    for(const auto &folder: qAsConst(folders))
     {
         m_socket->sendMessage("DELETE\r\n");
         qDebug() << folder;
@@ -200,7 +200,7 @@ void FileBox::pbDelete_clicked()
         qDebug() << m_socket->readLine(1000);
     }
 
-    for(const auto &file: files)
+    for(const auto &file: qAsConst(files))
     {
         m_socket->sendMessage("DELETE\r\n");
         qDebug() << file;
