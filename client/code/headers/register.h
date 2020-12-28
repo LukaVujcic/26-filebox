@@ -18,7 +18,7 @@ public:
     void paintEvent(QPaintEvent *);
 
 private slots:
-    void on_pbRegister_clicked();
+    void pbRegister_clicked();
 
 private:
     Ui::Register *ui;

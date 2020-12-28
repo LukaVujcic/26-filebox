@@ -25,9 +25,9 @@ public:
     void setFormRegister(Register* r);
 
 private slots:
-    void on_pbRegister_clicked();
+    void pbRegister_clicked();
 
-    void on_pbLogin_clicked();
+    void pbLogin_clicked();
 
 private:
     Ui::Login *ui;

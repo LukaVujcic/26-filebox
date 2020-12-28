@@ -28,14 +28,14 @@ private:
     TCPClient *m_socket;
     Login *m_login;
 private slots:
-    void on_pbUpload_clicked();
+    void pbUpload_clicked();
 
-    void on_pbNewFolder_clicked();
-    void on_pbCut_clicked();
-    void on_pbCopy_clicked();
-    void on_pbPaste_clicked();
-    void on_pbDelete_clicked();
-    void on_pbRename_clicked();
-    void on_pbDownload_clicked();
+    void pbNewFolder_clicked();
+    void pbCut_clicked();
+    void pbCopy_clicked();
+    void pbPaste_clicked();
+    void pbDelete_clicked();
+    void pbRename_clicked();
+    void pbDownload_clicked();
 };
 #endif // FILEBOX_H
