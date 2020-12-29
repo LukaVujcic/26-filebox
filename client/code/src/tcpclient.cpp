@@ -45,7 +45,7 @@ void TCPClient::sendFile(const QString &filePath){
     file.close();
 
 }
-void TCPClient::folderTraversal(QString rootFolderPath)
+void TCPClient::folderTraversal(QString rootFolderPath,const QString& serverPath)
 {
   QDirIterator it(rootFolderPath,QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
   QDir rootFolder(rootFolderPath);
@@ -53,7 +53,7 @@ void TCPClient::folderTraversal(QString rootFolderPath)
   while (it.hasNext()) {
       auto currentEntry=it.next();
       QString pathLocal=currentEntry;
-      QString pathRemote=rootFolder.dirName()+currentEntry.right(currentEntry.length()-rootFolderPath.length());
+      QString pathRemote=serverPath+rootFolder.dirName()+currentEntry.right(currentEntry.length()-rootFolderPath.length());
       QFileInfo fileInfo(pathLocal);
       if (fileInfo.isDir())
       {
@@ -145,20 +145,26 @@ QString TCPClient::fileSystemRequest()
     //this->sendMessage("Ok\r\n");
     return pathFile;
 }
-void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&folders)
+void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&folders,const QString& destPath)
 {
-
+    QString serverPath="";
+    if (destPath.compare(""))
+    {
+        serverPath=destPath;
+    }
+    serverPath=serverPath+"/";
     for(const auto& file: files){
         QFileInfo fileInfo(file);
         QString fileName = fileInfo.fileName();
-        this->uploadRequest(file,fileName);
+        this->uploadRequest(file,serverPath+fileName);
+        qDebug()<<serverPath+fileName;
         this->waitForReadyRead(-1);
         qDebug() <<this->readLine(1000);
 
     }
     for (const auto& folder:folders)
     {
-        folderTraversal(folder);
+        folderTraversal(folder,serverPath);
     }
 }
 

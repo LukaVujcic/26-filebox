@@ -55,6 +55,7 @@ void FileBox::setFormLogin(Login *login)
 void FileBox::setSocket(TCPClient *socket)
 {
     m_socket = socket;
+    ui->twRemoteFiles->getServerFilesystem(m_socket);
 }
 
 void FileBox::pbUpload_clicked()
@@ -66,11 +67,28 @@ void FileBox::pbUpload_clicked()
     if(remoteFolders.size() + remoteFiles.size() > 1)
     {
         QMessageBox::warning(this, "Upload", "Only one folder can be selected!");
+        return;
     }
     else if(remoteFiles.size() > 0)
     {
         QMessageBox::warning(this, "Upload", "Folder can be selected!");
+        return;
     }
+    if (localFolders.size() + localFiles.size() == 0)
+    {   QMessageBox::warning(this, "Upload", "Nothing selected for upload!");
+        return;
+    }
+    if (remoteFolders.size()==1)
+    {
+        auto rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
+        auto serverPath=remoteFolders[0].right(remoteFolders[0].length()-rootPath.length());
+        m_socket->sendAll(localFiles,localFolders,serverPath);
+    }
+    if (remoteFolders.size()==0)
+    {
+        m_socket->sendAll(localFiles,localFolders);
+    }
+    ui->twRemoteFiles->getServerFilesystem(m_socket);
 
 
     /*socket.sendMessage("UPLOAD\r\n");
@@ -161,7 +179,7 @@ void FileBox::pbCopy_clicked()
     {
         m_socket->sendMessage("COPY\r\n");
         qDebug() << file;
-        m_socket->sendMessage(file.right(file.size() - userFolder.size()) + "\r\n");
+        m_socket->sendMessage(file + "\r\n");
 
         m_socket->waitForReadyRead(-1);
         qDebug() << m_socket->readLine(1000);
@@ -246,6 +264,15 @@ void FileBox::pbDownload_clicked(){
     //qDebug()<<QDateTime::currentMSecsSinceEpoch();
     auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
     auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
+
+    if (localFiles.size()==0){
+        QMessageBox::warning(this, "Download", "File is selected! Only folder can be selected!");
+        return;
+    }
+    if (localFolders.size()>1){
+        QMessageBox::warning(this, "Download", "Multiple folders selected! Please select at most one folder!");
+        return;
+    }
     auto rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
     m_socket->downloadRequest(remoteFiles,remoteFolders,localFolders[0],rootPath);
 
