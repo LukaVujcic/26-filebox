@@ -4,39 +4,43 @@
 #include "filesystemtreeview.h"
 #include "login.h"
 
-#include <QWidget>
+#include <tcpclient.h>
 #include <QPainter>
 #include <QStyleOption>
-#include <tcpclient.h>
+#include <QWidget>
 QT_BEGIN_NAMESPACE
-namespace Ui { class FileBox; }
+namespace Ui
+{
+      class FileBox;
+}
 QT_END_NAMESPACE
 
 class FileBox : public QWidget
 {
-    Q_OBJECT
+      Q_OBJECT
 
-public:
-    FileBox(QWidget *parent = nullptr);
-    ~FileBox();
-    void paintEvent(QPaintEvent*);
+     public:
+      FileBox(QWidget *parent = nullptr);
+      ~FileBox();
+      void paintEvent(QPaintEvent *);
 
-    void setFormLogin(Login *l);
-    void setSocket(TCPClient* socket);
-private:
-    Ui::FileBox *ui;
-    TCPClient *m_socket;
-    Login *m_login;
-    QString userFolder;
-private slots:
-    void pbUpload_clicked();
+      void setFormLogin(Login *l);
+      void setSocket(TCPClient *socket);
 
-    void pbNewFolder_clicked();
-    void pbCut_clicked();
-    void pbCopy_clicked();
-    void pbPaste_clicked();
-    void pbDelete_clicked();
-    void pbRename_clicked();
-    void pbDownload_clicked();
+     private:
+      Ui::FileBox *ui;
+      TCPClient *m_socket;
+      Login *m_login;
+      QString userFolder;
+     private slots:
+      void pbUpload_clicked();
+
+      void pbNewFolder_clicked();
+      void pbCut_clicked();
+      void pbCopy_clicked();
+      void pbPaste_clicked();
+      void pbDelete_clicked();
+      void pbRename_clicked();
+      void pbDownload_clicked();
 };
-#endif // FILEBOX_H
+#endif  // FILEBOX_H

@@ -2,18 +2,18 @@
 #define FILESYSTEMTREEVIEW_H
 #include <qtreeview.h>
 #include <tcpclient.h>
+#include <QDir>
 #include <QFileSystemModel>
+#include <QPair>
 #include <QString>
 #include <QVector>
-#include <QDir>
-#include <QPair>
-class FileSystemTreeView:public QTreeView
+class FileSystemTreeView : public QTreeView
 {
-public:
-    FileSystemTreeView(QWidget *parent=nullptr);
-    QPair<QVector<QString>,QVector<QString>> getSelectedFiles() const;
-    void setViewFolder(const QString &path);
-    void getServerFilesystem(TCPClient *socket);
+     public:
+      FileSystemTreeView(QWidget *parent = nullptr);
+      QPair<QVector<QString>, QVector<QString>> getSelectedFiles() const;
+      void setViewFolder(const QString &path);
+      void getServerFilesystem(TCPClient *socket);
 };
 
-#endif // FILESYSTEMTREEVIEW_H
+#endif  // FILESYSTEMTREEVIEW_H
