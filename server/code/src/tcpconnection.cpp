@@ -427,6 +427,9 @@ void TCPConnection::readyRead()
             }
             //qDebug() << "****Failed creating folder (folder exists)!****";
         }
+        qDebug()<<socket->write("OK\r\n");
+        socket->flush();
+        socket->waitForBytesWritten(1000);
     }
 
 

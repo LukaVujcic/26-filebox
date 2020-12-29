@@ -21,7 +21,7 @@ private:
     void folderTraversal(QString rootFolderPath,const QString& serverPath);
     void sendFile(const QString &filePath);
     void uploadRequest(const QString& pathLocal,const QString& pathRemote);
-    void newFolderRequest(const QString& pathRemote);
+    void newFolderRequest(const QString& pathRemote,const QString &name);
     void sendFolder(const QString& path);
     void receiveFile(const QString& filePath);
 private slots:

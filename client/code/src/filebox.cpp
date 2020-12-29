@@ -119,6 +119,8 @@ void FileBox::pbNewFolder_clicked()
         qDebug() << destination;
 
         m_socket->sendMessage(destination.right(destination.size() - userFolder.size()));
+        m_socket->waitForReadyRead(-1);
+        qDebug() <<m_socket->readLine(1000);
     }
     else
     {
@@ -264,8 +266,7 @@ void FileBox::pbDownload_clicked(){
     //qDebug()<<QDateTime::currentMSecsSinceEpoch();
     auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
     auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
-
-    if (localFiles.size()==0){
+    if (localFiles.size()>0){
         QMessageBox::warning(this, "Download", "File is selected! Only folder can be selected!");
         return;
     }

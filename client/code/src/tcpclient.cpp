@@ -43,13 +43,15 @@ void TCPClient::sendFile(const QString &filePath){
     }
     delete[] chunk;
     file.close();
+    this->waitForReadyRead(-1);
+    qDebug()<<this->readLine(1000);
 
 }
 void TCPClient::folderTraversal(QString rootFolderPath,const QString& serverPath)
 {
   QDirIterator it(rootFolderPath,QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
   QDir rootFolder(rootFolderPath);
-  newFolderRequest(rootFolder.dirName());
+  newFolderRequest(serverPath,rootFolder.dirName());
   while (it.hasNext()) {
       auto currentEntry=it.next();
       QString pathLocal=currentEntry;
@@ -57,7 +59,9 @@ void TCPClient::folderTraversal(QString rootFolderPath,const QString& serverPath
       QFileInfo fileInfo(pathLocal);
       if (fileInfo.isDir())
       {
-          newFolderRequest(pathRemote);
+          QDir folder(pathLocal);
+          QString parentPath=pathRemote.left(pathRemote.lastIndexOf("/"));
+          newFolderRequest(parentPath,folder.dirName());
       }
       else
       {
@@ -72,10 +76,14 @@ void TCPClient::uploadRequest(const QString &pathLocal, const QString &pathRemot
     this->sendFile(pathLocal);
 }
 
-void TCPClient::newFolderRequest(const QString &pathRemote)
+void TCPClient::newFolderRequest(const QString &pathRemote,const QString &name)
 {
     this->sendMessage("NEW FOLDER\r\n");
+    this->sendMessage(name+"\r\n");
     this->sendMessage(pathRemote+"\r\n");
+    this->waitForReadyRead(-1);
+    qDebug() <<this->readLine(1000);
+
 }
 void TCPClient::receiveFile(const QString& filePath)
 {
@@ -158,8 +166,6 @@ void TCPClient::sendAll(const QVector<QString> &files,const QVector<QString>&fol
         QString fileName = fileInfo.fileName();
         this->uploadRequest(file,serverPath+fileName);
         qDebug()<<serverPath+fileName;
-        this->waitForReadyRead(-1);
-        qDebug() <<this->readLine(1000);
 
     }
     for (const auto& folder:folders)
