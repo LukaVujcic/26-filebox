@@ -63,7 +63,7 @@ void TCPRunnable::closing() { emit quit(); }
 
 void TCPRunnable::opened()
 {
-      TCPConnection *connection = static_cast<TCPConnection *>(sender());
+      auto *connection = static_cast<TCPConnection *>(sender());
 
       if (!connection) return;
 
@@ -74,7 +74,7 @@ void TCPRunnable::closed()
 {
       qDebug() << this << "Attempting closed";
 
-      TCPConnection *connection = static_cast<TCPConnection *>(sender());
+      auto *connection = static_cast<TCPConnection *>(sender());
 
       if (!connection) return;
 
@@ -94,7 +94,7 @@ void TCPRunnable::closed()
 
 TCPConnection *TCPRunnable::createConnection()
 {
-      TCPConnection *connection = new TCPConnection();
+      auto *connection = new TCPConnection();
 
       qDebug() << this << "created" << connection;
 

@@ -94,13 +94,13 @@ void TCPClient::receiveFile(const QString &filePath)
       }
       this->waitForReadyRead(-1);
       QString fileSizeStr = this->readLine(3000);
-      bool flag = 0;
+      bool flag = false;
       qint64 bytesFile = fileSizeStr.trimmed().toLongLong(&flag, 10);
       const int chunckSize = 1024 * 1024 * 10;
       char *chunk = new char[chunckSize + 1];
       int bytesRead;
       int total = 0;
-      while (1)
+      while (true)
       {
             if (total >= bytesFile)
             {

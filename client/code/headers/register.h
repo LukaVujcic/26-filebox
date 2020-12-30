@@ -16,8 +16,8 @@ class Register : public QWidget
 
      public:
       Register(QWidget *parent = nullptr);
-      ~Register();
-      void paintEvent(QPaintEvent *);
+      ~Register() override;
+      void paintEvent(QPaintEvent *) override;
 
      private slots:
       void pbRegister_clicked();

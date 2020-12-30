@@ -20,9 +20,9 @@ class Login : public QWidget
 
      public:
       Login(QWidget *parent = nullptr);
-      ~Login();
+      ~Login() override;
 
-      void paintEvent(QPaintEvent *);
+      void paintEvent(QPaintEvent *) override;
 
       void setFormRegister(Register *r);
 
