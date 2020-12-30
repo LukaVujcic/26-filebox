@@ -361,7 +361,7 @@ void TCPConnection::readyRead()
             std::string new_folder = (socket->readLine(1000)).trimmed().toStdString();
 
             socket->waitForReadyRead(1000);
-            QString path = userFolder + socket->readLine(1000);
+            QString path = (userFolder + socket->readLine(1000)).trimmed();
 
             qDebug()<<path<<"\n";
 
@@ -451,7 +451,7 @@ void TCPConnection::readyRead()
             qDebug() << "Pasting folder(s)... " << REQUEST;
 
             socket->waitForReadyRead(1000);
-            QString destination_path = userFolder + socket->readLine(1000);
+            QString destination_path = (userFolder + socket->readLine(1000)).trimmed();
 
             qDebug() << destination_path << "******";
 
@@ -495,6 +495,10 @@ void TCPConnection::readyRead()
             {
                   qDebug() << e.what();
             }
+
+            socket->write("OK\r\n");
+            socket->flush();
+            socket->waitForBytesWritten();
       }
 
       else if (is_rename_request(REQUEST))
@@ -502,12 +506,12 @@ void TCPConnection::readyRead()
             qDebug() << "Renaming folder(s)... " << REQUEST;
 
             socket->waitForReadyRead(1000);
-            QString file_path = userFolder + socket->readLine(1000);
+            QString file_path = (userFolder + socket->readLine(1000)).trimmed();
 
             qDebug() << file_path;
 
             socket->waitForReadyRead(1000);
-            QString input_name = socket->readLine(1000);
+            QString input_name = (socket->readLine(1000)).trimmed();
 
             qDebug() << input_name;
 
@@ -528,6 +532,10 @@ void TCPConnection::readyRead()
                         qDebug() << e.what();
                   }
             }
+
+            socket->write("OK\r\n");
+            socket->flush();
+            socket->waitForBytesWritten();
       }
 
       else if (is_clear_request(REQUEST))

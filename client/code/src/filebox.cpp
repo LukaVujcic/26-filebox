@@ -74,7 +74,6 @@ void FileBox::pbUpload_clicked()
       if (localFolders.size() + localFiles.size() == 0)
       {
             QMessageBox::warning(this, "Upload", "Nothing selected for upload!");
-            ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
             return;
       }
       if (remoteFolders.size() == 1)
@@ -117,7 +116,7 @@ void FileBox::pbNewFolder_clicked()
 
             qDebug() << destination;
 
-            m_socket->sendMessage(destination.right(destination.size() - m_userFolder.size()));
+            m_socket->sendMessage(destination.right(destination.size() - m_userFolder.size()) + "\r\n");
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
       }
@@ -125,6 +124,8 @@ void FileBox::pbNewFolder_clicked()
       {
             qDebug() << "Please, select just one folder!";
       }
+
+      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 }
 
 void FileBox::pbCut_clicked()
@@ -195,7 +196,9 @@ void FileBox::pbPaste_clicked()
 
       if (files.isEmpty() && (folders.size() == 1 || folders.isEmpty()))
       {
-            QString destination = (folders.size() == 1) ? folders[0].right(folders[0].size() - m_userFolder.size()) : "";
+            QString destination = (folders.size() == 1) ?
+                                  folders[0].right(folders[0].size() - m_userFolder.size()) + "\r\n" :
+                                  "\r\n";
 
             qDebug() << destination;
 
@@ -205,6 +208,11 @@ void FileBox::pbPaste_clicked()
       {
             QMessageBox::warning(this, "Paste", "Please, select just one folder!");
       }
+
+      m_socket->waitForReadyRead(-1);
+      qDebug() << m_socket->readLine(1000);
+
+      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 }
 
 void FileBox::pbDelete_clicked()
@@ -230,9 +238,16 @@ void FileBox::pbDelete_clicked()
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
       }
+
+      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 }
 void FileBox::pbRename_clicked()
 {
+      if(ui->txtEdit->toPlainText().size() == 0){
+          QMessageBox::warning(this, "Rename", "Please, type new name!");
+          return;
+      }
+
       m_socket->sendMessage("RENAME\r\n");
 
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
@@ -256,6 +271,11 @@ void FileBox::pbRename_clicked()
       }
 
       m_socket->sendMessage(ui->txtEdit->toPlainText().trimmed() + "\r\n");
+
+      m_socket->waitForReadyRead(-1);
+      qDebug() << m_socket->readLine(1000);
+
+      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 }
 
 void FileBox::pbDownload_clicked()
