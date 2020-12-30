@@ -26,12 +26,14 @@ class FileBox : public QWidget
 
       void setFormLogin(Login *l);
       void setSocket(TCPClient *socket);
+      void setUserFolder(QString username);
 
      private:
       Ui::FileBox *ui;
       TCPClient *m_socket;
       Login *m_login;
-      QString userFolder;
+      QString m_userFolder;
+      QString m_username;
      private slots:
       void pbUpload_clicked();
 

@@ -13,7 +13,7 @@ class FileSystemTreeView : public QTreeView
       FileSystemTreeView(QWidget *parent = nullptr);
       QPair<QVector<QString>, QVector<QString>> getSelectedFiles() const;
       void setViewFolder(const QString &path);
-      void getServerFilesystem(TCPClient *socket);
+      void getServerFilesystem(TCPClient *socket, QString &username);
 };
 
 #endif  // FILESYSTEMTREEVIEW_H

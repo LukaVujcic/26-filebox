@@ -24,12 +24,12 @@ void Login::paintEvent(QPaintEvent *)
 void Login::pbRegister_clicked()
 {
       hide();
-      m_reg->show();
+      m_register->show();
 
       resetForm();
 }
 
-void Login::setFormRegister(Register *r) { m_reg = r; }
+void Login::setFormRegister(Register *r) { m_register = r; }
 
 void Login::pbLogin_clicked()
 {
@@ -59,6 +59,7 @@ void Login::pbLogin_clicked()
 
       if (!answer.compare("CONTINUE"))
       {
+            qobject_cast<FileBox *>(parentWidget())->setUserFolder(username);
             qobject_cast<FileBox *>(parentWidget())->setSocket(socket);
             hide();
             parentWidget()->show();

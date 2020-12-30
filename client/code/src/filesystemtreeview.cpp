@@ -30,9 +30,9 @@ void FileSystemTreeView::setViewFolder(const QString &path)
       this->setRootIndex(model->index(path));
       if (oldModel != nullptr) delete oldModel;
 }
-void FileSystemTreeView::getServerFilesystem(TCPClient *socket)
+void FileSystemTreeView::getServerFilesystem(TCPClient *socket, QString &username)
 {
-      QString unzipPath = "filesystem";
+      QString unzipPath = "filesystem-" + username;
       QString pathFile = socket->fileSystemRequest();
       QDir unzipDir(unzipPath);
       if (unzipDir.exists())

@@ -34,7 +34,7 @@ class Login : public QWidget
      private:
       Ui::Login *ui;
 
-      Register *m_reg;
+      Register *m_register;
 
       void resetForm();
 };

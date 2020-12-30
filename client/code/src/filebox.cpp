@@ -22,8 +22,6 @@ FileBox::FileBox(QWidget *parent) : QWidget(parent), ui(new Ui::FileBox)
       ui->twRemoteFiles->hideColumn(1);
       ui->twRemoteFiles->setColumnWidth(0, 200);
       ui->twLocalFiles->setColumnWidth(0, 200);
-
-      userFolder = QDir("filesystem/filesystem").absolutePath();
 }
 
 FileBox::~FileBox()
@@ -48,7 +46,13 @@ void FileBox::setFormLogin(Login *login) { m_login = login; }
 void FileBox::setSocket(TCPClient *socket)
 {
       m_socket = socket;
-      ui->twRemoteFiles->getServerFilesystem(m_socket);
+      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+}
+
+void FileBox::setUserFolder(QString username)
+{
+    m_userFolder = QDir("filesystem-" + username + "/filesystem").absolutePath();
+    m_username = username;
 }
 
 void FileBox::pbUpload_clicked()
@@ -70,6 +74,7 @@ void FileBox::pbUpload_clicked()
       if (localFolders.size() + localFiles.size() == 0)
       {
             QMessageBox::warning(this, "Upload", "Nothing selected for upload!");
+            ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
             return;
       }
       if (remoteFolders.size() == 1)
@@ -83,7 +88,7 @@ void FileBox::pbUpload_clicked()
       {
             m_socket->sendAll(localFiles, localFolders);
       }
-      ui->twRemoteFiles->getServerFilesystem(m_socket);
+      //ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 
       /*socket.sendMessage("UPLOAD\r\n");
       socket.sendMessage("C:\\Users\\Petar\\Desktop\\testSlanje.png\r\n");
@@ -92,7 +97,7 @@ void FileBox::pbUpload_clicked()
       socket.waitForReadyRead(-1);
       qDebug() << socket.readLine(1000);*/
 
-      ui->twRemoteFiles->getServerFilesystem(m_socket);
+      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
       // socket.sendAll(localFiles,localFolders);
       // socket.close();
 }
@@ -112,7 +117,7 @@ void FileBox::pbNewFolder_clicked()
 
             qDebug() << destination;
 
-            m_socket->sendMessage(destination.right(destination.size() - userFolder.size()));
+            m_socket->sendMessage(destination.right(destination.size() - m_userFolder.size()));
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
       }
@@ -135,7 +140,7 @@ void FileBox::pbCut_clicked()
       {
             m_socket->sendMessage("CUT\r\n");
             qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - userFolder.size()) + "\r\n");
+            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
 
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
@@ -145,7 +150,7 @@ void FileBox::pbCut_clicked()
       {
             m_socket->sendMessage("CUT\r\n");
             qDebug() << file;
-            m_socket->sendMessage(file.right(file.size() - userFolder.size()) + "\r\n");
+            m_socket->sendMessage(file.right(file.size() - m_userFolder.size()) + "\r\n");
 
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
@@ -165,7 +170,7 @@ void FileBox::pbCopy_clicked()
       {
             m_socket->sendMessage("COPY\r\n");
             qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - userFolder.size()) + "\r\n");
+            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
 
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
@@ -190,7 +195,7 @@ void FileBox::pbPaste_clicked()
 
       if (files.isEmpty() && (folders.size() == 1 || folders.isEmpty()))
       {
-            QString destination = (folders.size() == 1) ? folders[0].right(folders[0].size() - userFolder.size()) : "";
+            QString destination = (folders.size() == 1) ? folders[0].right(folders[0].size() - m_userFolder.size()) : "";
 
             qDebug() << destination;
 
@@ -210,7 +215,7 @@ void FileBox::pbDelete_clicked()
       {
             m_socket->sendMessage("DELETE\r\n");
             qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - userFolder.size()) + "\r\n");
+            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
 
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
@@ -220,7 +225,7 @@ void FileBox::pbDelete_clicked()
       {
             m_socket->sendMessage("DELETE\r\n");
             qDebug() << file;
-            m_socket->sendMessage(file.right(file.size() - userFolder.size()) + "\r\n");
+            m_socket->sendMessage(file.right(file.size() - m_userFolder.size()) + "\r\n");
 
             m_socket->waitForReadyRead(-1);
             qDebug() << m_socket->readLine(1000);
@@ -235,12 +240,12 @@ void FileBox::pbRename_clicked()
       if (folders.size() == 1 && files.isEmpty())
       {
             qDebug() << folders[0];
-            m_socket->sendMessage(folders[0].right(folders[0].size() - userFolder.size()) + "\r\n");
+            m_socket->sendMessage(folders[0].right(folders[0].size() - m_userFolder.size()) + "\r\n");
       }
       else if (files.size() == 1 && folders.isEmpty())
       {
             qDebug() << files[0];
-            m_socket->sendMessage(files[0].right(files[0].size() - userFolder.size()) + "\r\n");
+            m_socket->sendMessage(files[0].right(files[0].size() - m_userFolder.size()) + "\r\n");
       }
       else
       {
