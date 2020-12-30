@@ -15,8 +15,8 @@ class TCPServer : public QTcpServer
 {
       Q_OBJECT
      public:
-      explicit TCPServer(QObject *parent = 0);
-      ~TCPServer();
+      explicit TCPServer(QObject *parent = nullptr);
+      ~TCPServer() override;
 
       enum ThreadMode
       {
@@ -54,7 +54,7 @@ class TCPServer : public QTcpServer
 
       virtual TCPRunnable *createRunnable();
 
-      virtual void incomingConnection(qintptr handle);
+      void incomingConnection(qintptr handle) override;
       virtual void startRunnable(TCPRunnable *runnable);
       virtual void reject(qintptr handle);
       virtual void acceptSingle(qintptr handle);

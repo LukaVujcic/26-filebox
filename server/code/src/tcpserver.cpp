@@ -115,7 +115,7 @@ void TCPServer::incomingConnection(qintptr handle)
 
 void TCPServer::started()
 {
-      TCPRunnable *runnable = static_cast<TCPRunnable *>(sender());
+      auto *runnable = static_cast<TCPRunnable *>(sender());
 
       if (!runnable) return;
 
@@ -126,7 +126,7 @@ void TCPServer::finished()
 {
       qDebug() << this << "finished" << sender();
 
-      TCPRunnable *runnable = static_cast<TCPRunnable *>(sender());
+      auto *runnable = static_cast<TCPRunnable *>(sender());
 
       if (!runnable) return;
 
@@ -145,7 +145,7 @@ TCPRunnable *TCPServer::createRunnable()
 {
       qDebug() << this << "Creating runnable...";
 
-      TCPRunnable *runnable = new TCPRunnable();
+      auto *runnable = new TCPRunnable();
       runnable->setAutoDelete(false);
 
       return runnable;
@@ -187,7 +187,7 @@ void TCPServer::reject(qintptr handle)
 {
       qDebug() << this << "************************ Rejecting connection: " << handle;
 
-      QTcpSocket *socket = new QTcpSocket(this);
+      auto *socket = new QTcpSocket(this);
       socket->setSocketDescriptor(handle);
       socket->close();
       socket->deleteLater();
@@ -316,7 +316,7 @@ void TCPServer::accept(qintptr handle, TCPRunnable *runnable)
       qDebug() << "Called in TCP";
       qDebug() << this << "accepting" << handle << "on" << runnable;
 
-      TCPConnection *connection = new TCPConnection;
+      auto *connection = new TCPConnection;
 
       if (!connection)
       {
