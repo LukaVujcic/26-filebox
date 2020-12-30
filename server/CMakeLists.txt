@@ -1,7 +1,13 @@
+list(APPEND CMAKE_PREFIX_PATH "/home/aizenangel/Qt5.12.8/5.12.8/gcc_64/lib/cmake")
+
 cmake_minimum_required(VERSION 3.16.3)
 
 set (CMAKE_AUTOMOC ON)
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
+set (CMAKE_CXX_FLAGS "-g")
+
+include_directories(code/thirdPartyLibraries/zipper)
+include_directories(code/headers)
 
 project(server VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
@@ -25,10 +31,10 @@ set(SOURCES
     code/headers/tcpserver.h
 )
 
-add_executable(test ${SOURCES} )
+add_executable(${PROJECT_NAME} ${SOURCES} )
 
-
-target_link_libraries(test PUBLIC
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    /home/aizenangel/Desktop/26-filebox/server/code/thirdPartyLibraries/zipper/build/libZipper.so
     Qt5::Core
     Qt5::Network
 )

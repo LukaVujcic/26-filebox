@@ -59,7 +59,7 @@ void TCPConnection::accept(qintptr descriptor)
 
 void TCPConnection::connected()
 {
-      QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+      auto* socket = static_cast<QTcpSocket*>(sender());
       if (!socket) return;
 
       qDebug() << this << " connected";
@@ -69,7 +69,7 @@ void TCPConnection::connected()
 
 void TCPConnection::disconnected()
 {
-      QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+      auto* socket = static_cast<QTcpSocket*>(sender());
       if (!socket) return;
 
       qDebug() << this << socket << " disconnected";
@@ -174,7 +174,7 @@ void get_files_and_folders(QString current_path, QString& server_path, Zipper& z
 
 void TCPConnection::sendFile(QString filePath)
 {
-      QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+      auto* socket = static_cast<QTcpSocket*>(sender());
       QFile file(filePath);
       // qDebug()<<filePath;
       if (!file.open(QIODevice::ReadOnly)) return;
@@ -205,7 +205,7 @@ void TCPConnection::sendFile(QString filePath)
 
 void TCPConnection::readyRead()
 {
-      QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+      auto* socket = static_cast<QTcpSocket*>(sender());
       QString userFolder = QDir(USERS_FOLDER + TCPConnection::users_map[socket]).absolutePath();
 
       qDebug() << socket->ConnectedState;
@@ -710,7 +710,7 @@ bool TCPConnection::checkProfile(const QString& username, const QString& passwor
 
 void TCPConnection::bytesWritten(qint64 bytes)
 {
-      QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+      auto* socket = static_cast<QTcpSocket*>(sender());
       if (!socket) return;
 
       qDebug() << socket << " bytesWritten " << bytes;
@@ -719,7 +719,7 @@ void TCPConnection::bytesWritten(qint64 bytes)
 
 void TCPConnection::stateChanged(QAbstractSocket::SocketState socketState)
 {
-      QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+      auto* socket = static_cast<QTcpSocket*>(sender());
       if (!socket) return;
 
       qDebug() << socket << " stateChanged " << socketState;
@@ -729,7 +729,7 @@ void TCPConnection::stateChanged(QAbstractSocket::SocketState socketState)
 
 void TCPConnection::error(QAbstractSocket::SocketError socketError)
 {
-      QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+      auto* socket = static_cast<QTcpSocket*>(sender());
       if (!socket) return;
 
       qDebug() << socket << " error " << socketError;
@@ -740,7 +740,7 @@ QTcpSocket* TCPConnection::createSocket()
 {
       qDebug() << this << "Creating socket...";
 
-      QTcpSocket* socket = new QTcpSocket(this);
+      auto* socket = new QTcpSocket(this);
 
       connect(socket, &QTcpSocket::connected, this, &TCPConnection::connected);
       connect(socket, &QTcpSocket::disconnected, this, &TCPConnection::disconnected);
