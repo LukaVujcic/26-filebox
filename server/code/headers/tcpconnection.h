@@ -16,6 +16,8 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <QMutex>
+#include <QMap>
 using namespace zipper;
 
 namespace fs = std::filesystem;
@@ -23,6 +25,16 @@ namespace fs = std::filesystem;
 class TCPConnection : public QObject
 {
       Q_OBJECT
+
+private:
+    static QMutex mutex;
+    static QMap<QTcpSocket*, QString> users_map;
+
+private:
+    const QString USERS_FOLDER = "../users/";
+    const QString USERS_LOGIN_INFO = "../users/users.txt";
+    const char* ZIPPER_LOCATION = "../users/ziptest.zip";
+
      public:
       explicit TCPConnection(QObject* parent = nullptr);
       ~TCPConnection();

@@ -7,6 +7,9 @@ namespace fs = std::filesystem;
 
 bool find_str(char const* str, char const* substr);
 
+QMap<QTcpSocket*, QString> TCPConnection::users_map = QMap<QTcpSocket*, QString>();
+QMutex TCPConnection::mutex = QMutex();
+
 TCPConnection::TCPConnection(QObject* parent) : QObject(parent)
 {
       Q_UNUSED(parent);
@@ -70,6 +73,10 @@ void TCPConnection::disconnected()
       if (!socket) return;
 
       qDebug() << this << socket << " disconnected";
+
+      TCPConnection::mutex.lock();
+          TCPConnection::users_map.remove(socket);
+      TCPConnection::mutex.unlock();
 
       sockets.removeAll(socket);
       socket->deleteLater();
@@ -199,7 +206,7 @@ void TCPConnection::sendFile(QString filePath)
 void TCPConnection::readyRead()
 {
       QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
-      QString userFolder = QDir("../users/admin").absolutePath();
+      QString userFolder = QDir(USERS_FOLDER + TCPConnection::users_map[socket]).absolutePath();
 
       qDebug() << socket->ConnectedState;
       qDebug() << "Enter readyRead!";
@@ -219,7 +226,7 @@ void TCPConnection::readyRead()
             int num_of_files = socket->readLine(1000).toInt(&conversion_successful);
             qDebug() << "Broj linija: " << num_of_files << "\n";
 
-            Zipper zipper("ziptest.zip");
+            Zipper zipper(ZIPPER_LOCATION);
 
             if (!conversion_successful)
             {
@@ -229,14 +236,13 @@ void TCPConnection::readyRead()
             }
 
             QString server_path;
-            QString server_user_path = "../users/admin/";
 
             while (num_of_files--)
             {
                   socket->waitForReadyRead(1000);
                   QString path = socket->readLine(1000);
 
-                  server_path = "../users/admin/" + path.trimmed();
+                  server_path = userFolder + path.trimmed();
                   qDebug() << "Cela putanja: " << server_path << "\n";
 
                   QFileInfo f1(server_path);
@@ -247,8 +253,8 @@ void TCPConnection::readyRead()
 
             zipper.close();
 
-            sendFile("ziptest.zip");
-            QFile zip("ziptest.zip");
+            sendFile(ZIPPER_LOCATION);
+            QFile zip(ZIPPER_LOCATION);
             zip.remove();
       }
 
@@ -263,14 +269,15 @@ void TCPConnection::readyRead()
             //        QFile zip("/home/luka/Desktop/FileBox-repo/26-filebox/server/users/ziptest.zip");
             //        zip.remove();
             /*TODO username*/
-            const char* user_path = "../users/admin";
+
+            const char* user_path = userFolder.toLocal8Bit().data();
             QDir dir(user_path);
-            Zipper zipper("../users/ziptest.zip");
+            Zipper zipper(ZIPPER_LOCATION);
 
             display_files_in_folder(dir.absolutePath(), dir.absolutePath(), zipper, "filesystem");
             zipper.close();
-            sendFile("../users/ziptest.zip");
-            QFile zip("../users/ziptest.zip");
+            sendFile(ZIPPER_LOCATION);
+            QFile zip(ZIPPER_LOCATION);
             zip.remove();
       }
 
@@ -278,8 +285,10 @@ void TCPConnection::readyRead()
       {
             socket->waitForReadyRead(1000);
             QByteArray file_path = socket->readLine(1000);
-            const char* user_path = "../users/admin";
+
+            const char* user_path = userFolder.toLocal8Bit().data();
             qDebug() << file_path;
+            qDebug() << user_path;
 
             qDebug() << "Request: " << REQUEST << " file path: " << file_path << "\n";
             qDebug() << "File content: "
@@ -353,6 +362,8 @@ void TCPConnection::readyRead()
 
             socket->waitForReadyRead(1000);
             QString path = userFolder + socket->readLine(1000);
+
+            qDebug()<<path<<"\n";
 
             // std::string new_folder {"New folder"};
 
@@ -547,7 +558,7 @@ void TCPConnection::readyRead()
             password = hash.result();
             hash.reset();
 
-            QFile file("../users/users.txt");
+            QFile file(USERS_LOGIN_INFO);
 
             if (checkUsername(username, file))
             {
@@ -578,7 +589,12 @@ void TCPConnection::readyRead()
 
             username.replace("\n", "");
 
-            QFile file("../users/users.txt");
+            // pamtimo korisnika u mapi
+            TCPConnection::mutex.lock();
+                TCPConnection::users_map[socket] = username;
+            TCPConnection::mutex.unlock();
+
+            QFile file(USERS_LOGIN_INFO);
 
             QCryptographicHash hash(QCryptographicHash::Sha256);
             hash.addData(password);
