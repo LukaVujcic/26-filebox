@@ -21,8 +21,8 @@ class FileBox : public QWidget
 
      public:
       FileBox(QWidget *parent = nullptr);
-      ~FileBox();
-      void paintEvent(QPaintEvent *);
+      ~FileBox() override;
+      void paintEvent(QPaintEvent *) override;
 
       void setFormLogin(Login *l);
       void setSocket(TCPClient *socket);

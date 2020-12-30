@@ -4,7 +4,7 @@ FileSystemTreeView::FileSystemTreeView(QWidget *parent) : QTreeView(parent) {}
 QPair<QVector<QString>, QVector<QString>> FileSystemTreeView::getSelectedFiles() const
 {
       QModelIndexList selectedItems = selectionModel()->selectedRows();
-      QFileSystemModel *modelFileSystem = dynamic_cast<QFileSystemModel *>(model());
+      auto *modelFileSystem = dynamic_cast<QFileSystemModel *>(model());
       QVector<QString> folders;
       QVector<QString> files;
       for (auto &selected : selectedItems)
@@ -23,7 +23,7 @@ QPair<QVector<QString>, QVector<QString>> FileSystemTreeView::getSelectedFiles()
 }
 void FileSystemTreeView::setViewFolder(const QString &path)
 {
-      QFileSystemModel *model = new QFileSystemModel();
+      auto *model = new QFileSystemModel();
       auto oldModel = this->model();
       model->setRootPath(path);
       this->setModel(model);
