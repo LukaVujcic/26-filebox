@@ -2,122 +2,110 @@
 
 TCPRunnable::TCPRunnable(QObject *parent) : QObject(parent)
 {
-    Q_UNUSED(parent);
-    qDebug() << this << "created";
-    isThreaded = false;
+      Q_UNUSED(parent);
+      qDebug() << this << "created";
+      isThreaded = false;
 }
 
-TCPRunnable::~TCPRunnable()
-{
-    qDebug() << this << "destroyed";
-}
+TCPRunnable::~TCPRunnable() { qDebug() << this << "destroyed"; }
 
 void TCPRunnable::run()
 {
-    qDebug() << this << "started on " << QThread::currentThread();
+      qDebug() << this << "started on " << QThread::currentThread();
 
-    loop = new QEventLoop();
-    connect(this, &TCPRunnable::quit,loop, &QEventLoop::quit);
-    loop->exec();
+      loop = new QEventLoop();
+      connect(this, &TCPRunnable::quit, loop, &QEventLoop::quit);
+      loop->exec();
 
-    qDebug() << this << "finished on " << QThread::currentThread();
-    emit finished();
+      qDebug() << this << "finished on " << QThread::currentThread();
+      emit finished();
 }
 
 int TCPRunnable::count()
 {
-    QReadLocker locker(&lock);
-    return connections.count();
+      QReadLocker locker(&lock);
+      return connections.count();
 }
 
-void TCPRunnable::setThreadedMode(bool value)
-{
-    isThreaded = value;
-}
+void TCPRunnable::setThreadedMode(bool value) { isThreaded = value; }
 
 void TCPRunnable::connecting(qintptr handle, TCPRunnable *runnable, TCPConnection *connection)
 {
-    if(runnable != this) return;
+      if (runnable != this) return;
 
-    qDebug() << this << "Connecting: " << handle << " on " << runnable << " with " << connection;
+      qDebug() << this << "Connecting: " << handle << " on " << runnable << " with " << connection;
 
-    connection->moveToThread(QThread::currentThread());
+      connection->moveToThread(QThread::currentThread());
 
-    connections.append(connection);
-    addSignals(connection);
-    connection->accept(handle);
+      connections.append(connection);
+      addSignals(connection);
+      connection->accept(handle);
 }
 
 void TCPRunnable::idle(int value)
 {
-    foreach(TCPConnection* connection, connections)
-    {
-        if(!connection)
-            continue;
+      foreach (TCPConnection *connection, connections)
+      {
+            if (!connection) continue;
 
-        int idle = connection->idleTime();
-        qDebug() << this << connection << " idle for " << idle << " timeout is " << value;
+            int idle = connection->idleTime();
+            qDebug() << this << connection << " idle for " << idle << " timeout is " << value;
 
-        if(idle >= value)
-        {
-            qDebug() << this << "Closing idle connection" << connection;
-            connection->quit();
-        }
-    }
+            if (idle >= value)
+            {
+                  qDebug() << this << "Closing idle connection" << connection;
+                  connection->quit();
+            }
+      }
 }
 
-void TCPRunnable::closing()
-{
-    emit quit();
-}
+void TCPRunnable::closing() { emit quit(); }
 
 void TCPRunnable::opened()
 {
-    TCPConnection *connection = static_cast<TCPConnection*>(sender());
+      TCPConnection *connection = static_cast<TCPConnection *>(sender());
 
-    if(!connection)
-        return;
+      if (!connection) return;
 
-    qDebug() << connection << "opened";
+      qDebug() << connection << "opened";
 }
 
 void TCPRunnable::closed()
 {
-    qDebug() << this << "Attempting closed";
+      qDebug() << this << "Attempting closed";
 
-    TCPConnection *connection = static_cast<TCPConnection*>(sender());
+      TCPConnection *connection = static_cast<TCPConnection *>(sender());
 
-    if(!connection)
-        return;
+      if (!connection) return;
 
-    qDebug() << connection << "closed";
-    connections.removeAll(connection);
+      qDebug() << connection << "closed";
+      connections.removeAll(connection);
 
-    qDebug() << this << "deleting" << connection;
+      qDebug() << this << "deleting" << connection;
 
-    connection->deleteLater();
+      connection->deleteLater();
 
-    if(isThreaded)
-    {
-        qDebug() << this << "**** Quitting runnable" << isThreaded;
-        emit quit();
-    }
+      if (isThreaded)
+      {
+            qDebug() << this << "**** Quitting runnable" << isThreaded;
+            emit quit();
+      }
 }
 
 TCPConnection *TCPRunnable::createConnection()
 {
-    TCPConnection *connection = new TCPConnection();
+      TCPConnection *connection = new TCPConnection();
 
-    qDebug() << this << "created" << connection;
+      qDebug() << this << "created" << connection;
 
-    return connection;
+      return connection;
 }
 
 void TCPRunnable::addSignals(TCPConnection *connection)
 {
-    qDebug() << this << "connecting signals and slots" << connection;
+      qDebug() << this << "connecting signals and slots" << connection;
 
-    connect(connection, &TCPConnection::opened, this, &TCPRunnable::opened, Qt::QueuedConnection);
-    connect(connection, &TCPConnection::closed, this, &TCPRunnable::closed, Qt::QueuedConnection);
-    connect(this, &TCPRunnable::quit, connection, &TCPConnection::quit, Qt::QueuedConnection);
+      connect(connection, &TCPConnection::opened, this, &TCPRunnable::opened, Qt::QueuedConnection);
+      connect(connection, &TCPConnection::closed, this, &TCPRunnable::closed, Qt::QueuedConnection);
+      connect(this, &TCPRunnable::quit, connection, &TCPConnection::quit, Qt::QueuedConnection);
 }
