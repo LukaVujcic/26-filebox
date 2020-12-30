@@ -270,8 +270,7 @@ void TCPConnection::readyRead()
             //        zip.remove();
             /*TODO username*/
 
-            const char* user_path = userFolder.toLocal8Bit().data();
-            QDir dir(user_path);
+            QDir dir(userFolder);
             Zipper zipper(ZIPPER_LOCATION);
 
             display_files_in_folder(dir.absolutePath(), dir.absolutePath(), zipper, "filesystem");
@@ -286,14 +285,12 @@ void TCPConnection::readyRead()
             socket->waitForReadyRead(1000);
             QByteArray file_path = socket->readLine(1000);
 
-            const char* user_path = userFolder.toLocal8Bit().data();
             qDebug() << file_path;
-            qDebug() << user_path;
 
             qDebug() << "Request: " << REQUEST << " file path: " << file_path << "\n";
             qDebug() << "File content: "
                      << "\n";
-            QFile f((QString(user_path) + QString(file_path)).trimmed());
+            QFile f((userFolder + QString(file_path)).trimmed());
 
             // QFile f(QString("C:/Users/bozam/Desktop/preko_mreze.txt").trimmed());
 
@@ -305,7 +302,7 @@ void TCPConnection::readyRead()
 
             f.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
-            const int chunckSize = 1024 * 1024;
+            const int chunckSize = 1024 * 1024 * 10;
             char* chunk = new char[chunckSize + 1];
             int total = 0;
             int bytesRead;
@@ -601,7 +598,6 @@ void TCPConnection::readyRead()
             TCPConnection::mutex.lock();
                 TCPConnection::users_map[socket] = username;
             TCPConnection::mutex.unlock();
-
             QFile file(USERS_LOGIN_INFO);
 
             QCryptographicHash hash(QCryptographicHash::Sha256);

@@ -45,8 +45,8 @@ class TCPServer : public QTcpServer
       void timeout();
 
      protected:
-      ThreadMode threadMode = MODE_SINGLE;
-      int maxConnections = 0;
+      ThreadMode threadMode = MODE_POOLED;
+      int maxConnections = 4;
       int connectionTimeout = 0;
 
       QList<TCPRunnable *> runnables;
