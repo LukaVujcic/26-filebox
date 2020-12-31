@@ -11,60 +11,55 @@
 #include <QThreadPool>
 #include <QTimer>
 
-class TCPServer : public QTcpServer
-{
-      Q_OBJECT
-     public:
-      explicit TCPServer(QObject *parent = nullptr);
-      ~TCPServer() override;
+class TCPServer : public QTcpServer {
+    Q_OBJECT
+  public:
+    explicit TCPServer(QObject *parent = nullptr);
+    ~TCPServer() override;
 
-      enum ThreadMode
-      {
-            MODE_SINGLE = 0,
-            MODE_POOLED = 1,
-            MODE_THREADED = 2
-      };
+    enum ThreadMode { MODE_SINGLE = 0, MODE_POOLED = 1, MODE_THREADED = 2 };
 
-      void setMaxThreads(int value);
-      void setMaxConnections(int value);
-      void setConnectionTimeout(int value);
-      void setMode(ThreadMode value);
-      void listen(const QHostAddress &address, quint16 port);
-      void close();
+    void setMaxThreads(int value);
+    void setMaxConnections(int value);
+    void setConnectionTimeout(int value);
+    void setMode(ThreadMode value);
+    void listen(const QHostAddress &address, quint16 port);
+    void close();
 
-      QStringList getAddresses();
+    QStringList getAddresses();
 
-     signals:
-      void connecting(qintptr handle, TCPRunnable *runnable, TCPConnection *connection);
-      void closing();
-      void idle(int value);
+  signals:
+    void connecting(
+        qintptr handle, TCPRunnable *runnable, TCPConnection *connection);
+    void closing();
+    void idle(int value);
 
-     public slots:
-      void started();
-      void finished();
-      void timeout();
+  public slots:
+    void started();
+    void finished();
+    void timeout();
 
-     protected:
-      ThreadMode threadMode = MODE_POOLED;
-      int maxConnections = 4;
-      int connectionTimeout = 0;
+  protected:
+    ThreadMode threadMode = MODE_POOLED;
+    int maxConnections = 4;
+    int connectionTimeout = 0;
 
-      QList<TCPRunnable *> runnables;
-      QTimer timer;
+    QList<TCPRunnable *> runnables;
+    QTimer timer;
 
-      virtual TCPRunnable *createRunnable();
+    virtual TCPRunnable *createRunnable();
 
-      void incomingConnection(qintptr handle) override;
-      virtual void startRunnable(TCPRunnable *runnable);
-      virtual void reject(qintptr handle);
-      virtual void acceptSingle(qintptr handle);
-      virtual void acceptPooled(qintptr handle);
-      virtual void acceptThreaded(qintptr handle);
-      virtual void startSingle();
-      virtual void startPooled();
-      virtual void startThreaded();
-      virtual int connections();
-      virtual void accept(qintptr handle, TCPRunnable *runnable);
+    void incomingConnection(qintptr handle) override;
+    virtual void startRunnable(TCPRunnable *runnable);
+    virtual void reject(qintptr handle);
+    virtual void acceptSingle(qintptr handle);
+    virtual void acceptPooled(qintptr handle);
+    virtual void acceptThreaded(qintptr handle);
+    virtual void startSingle();
+    virtual void startPooled();
+    virtual void startThreaded();
+    virtual int connections();
+    virtual void accept(qintptr handle, TCPRunnable *runnable);
 };
 
-#endif  // TCPSERVER_H
+#endif // TCPSERVER_H
