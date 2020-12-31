@@ -1,7 +1,6 @@
 #include "filebox.h"
 #include "tcpclient.h"
 #include "ui_filebox.h"
-
 #include <QMessageBox>
 
 FileBox::FileBox(QWidget *parent) : QWidget(parent), ui(new Ui::FileBox)
@@ -16,6 +15,8 @@ FileBox::FileBox(QWidget *parent) : QWidget(parent), ui(new Ui::FileBox)
       connect(ui->pbPaste, &QPushButton::clicked, this, &FileBox::pbPaste_clicked);
       connect(ui->pbRename, &QPushButton::clicked, this, &FileBox::pbRename_clicked);
 
+
+     // connect(m_socket, &TCPClient::moveOperationsFinished, this, &FileBox::moveOperationsFinished);
       ui->twLocalFiles->setViewFolder("");
       ui->twRemoteFiles->setViewFolder("");
 
@@ -46,7 +47,11 @@ void FileBox::setFormLogin(Login *login) { m_login = login; }
 void FileBox::setSocket(TCPClient *socket)
 {
       m_socket = socket;
+      m_socket->moveToThread(transferThread);
       ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+      connect(m_socket, &TCPClient::moveOperationsFinished, this, &FileBox::moveOperationsFinished);
+      connect(m_socket, &TCPClient::uploadFinished, this, &FileBox::uploadFinished);
+      connect(m_socket, &TCPClient::downloadFinished, this, &FileBox::downloadFinished);
 }
 
 void FileBox::setUserFolder(QString username)
@@ -55,8 +60,19 @@ void FileBox::setUserFolder(QString username)
     m_username = username;
 }
 
+void FileBox::changeEnableButtons(bool enable)
+{
+    QList<QPushButton *> buttons = findChildren<QPushButton *>();
+    for (const auto&button:buttons)
+    {
+        button->setEnabled(enable);
+    }
+}
+
 void FileBox::pbUpload_clicked()
 {
+
+
       // TCPClient socket("127.0.0.1", 5000);
       auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
       auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
@@ -76,29 +92,24 @@ void FileBox::pbUpload_clicked()
             QMessageBox::warning(this, "Upload", "Nothing selected for upload!");
             return;
       }
+      //changeEnabledButtons(false);
       if (remoteFolders.size() == 1)
       {
             auto rootPath =
                 dynamic_cast<QFileSystemModel *>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
             auto serverPath = remoteFolders[0].right(remoteFolders[0].length() - rootPath.length());
-            m_socket->sendAll(localFiles, localFolders, serverPath);
+             transferThread= QThread::create(std::bind(&TCPClient::sendAll,m_socket,localFiles,localFolders,serverPath));
       }
       if (remoteFolders.size() == 0)
       {
-            m_socket->sendAll(localFiles, localFolders);
+            transferThread= QThread::create(std::bind(&TCPClient::sendAll,m_socket,localFiles,localFolders,""));
       }
+
+      changeEnableButtons(false);
+      QMessageBox::information(this,"Upload","Upload started!");
+      connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+      transferThread->start();
       //ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
-
-      /*socket.sendMessage("UPLOAD\r\n");
-      socket.sendMessage("C:\\Users\\Petar\\Desktop\\testSlanje.png\r\n");
-      socket.sendFile("C:\\Users\\Petar\\Desktop\\warning_1_filebox.png");
-
-      socket.waitForReadyRead(-1);
-      qDebug() << socket.readLine(1000);*/
-
-      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
-      // socket.sendAll(localFiles,localFolders);
-      // socket.close();
 }
 
 void FileBox::pbNewFolder_clicked()
@@ -130,62 +141,26 @@ void FileBox::pbNewFolder_clicked()
 
 void FileBox::pbCut_clicked()
 {
+
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+      transferThread=QThread::create(std::bind(&TCPClient::moveOperations,m_socket,files,folders,"CUT\r\n",m_userFolder));
+      changeEnableButtons(false);
+      QMessageBox::information(this,"Cut","Cut started!");
+      connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+      transferThread->start();
 
-      m_socket->sendMessage("CLEAR\r\n");
-
-      m_socket->waitForReadyRead(-1);
-      qDebug() << m_socket->readLine(1000);
-
-      for (const auto &folder : qAsConst(folders))
-      {
-            m_socket->sendMessage("CUT\r\n");
-            qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
-
-      for (const auto &file : qAsConst(files))
-      {
-            m_socket->sendMessage("CUT\r\n");
-            qDebug() << file;
-            m_socket->sendMessage(file.right(file.size() - m_userFolder.size()) + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
+      //m_socket->moveOperations(files,folders,"CUT\r\n",m_userFolder);
 }
 
 void FileBox::pbCopy_clicked()
 {
-      auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
-
-      m_socket->sendMessage("CLEAR\r\n");
-
-      m_socket->waitForReadyRead(-1);
-      qDebug() << m_socket->readLine(1000);
-
-      for (const auto &folder : qAsConst(folders))
-      {
-            m_socket->sendMessage("COPY\r\n");
-            qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
-
-      for (const auto &file : qAsConst(files))
-      {
-            m_socket->sendMessage("COPY\r\n");
-            qDebug() << file;
-            m_socket->sendMessage(file + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
+    //connect(m_socket, &TCPClient::moveOperationsFinished, this, &FileBox::moveOperationsFinished);
+    auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+    transferThread=QThread::create(std::bind(&TCPClient::moveOperations,m_socket,files,folders,"COPY\r\n",m_userFolder));
+    changeEnableButtons(false);
+    QMessageBox::information(this,"Copy","Copy started!");
+    connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+    transferThread->start();
 }
 
 void FileBox::pbPaste_clicked()
@@ -274,13 +249,10 @@ void FileBox::pbRename_clicked()
 
       m_socket->waitForReadyRead(-1);
       qDebug() << m_socket->readLine(1000);
-
       ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 }
-
 void FileBox::pbDownload_clicked()
 {
-      // qDebug()<<QDateTime::currentMSecsSinceEpoch();
       auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
       auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
       if (localFiles.size() > 0)
@@ -294,23 +266,26 @@ void FileBox::pbDownload_clicked()
             return;
       }
       auto rootPath = dynamic_cast<QFileSystemModel *>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-      m_socket->downloadRequest(remoteFiles, remoteFolders, localFolders[0], rootPath);
+      transferThread= QThread::create(std::bind(&TCPClient::downloadRequest,m_socket,remoteFiles,remoteFolders,localFolders[0],rootPath));
 
-      //    QVector<QString> selected;
-      //    selected=remoteFolders;
-      //    for (const auto& file:remoteFiles){
-      //        selected.push_back(file);
-      //    }
-      //    for (const auto& selectItem: selected)
-      //    {
-      //        //qDebug()<<folder;
-      //        //qDebug()<<dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-      //        auto
-      //        rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-      //        auto itemPath=selectItem.right(selectItem.length()-rootPath.length());
-      //        qDebug()<<itemPath;
-      //        m_socket->downloadRequest(itemPath);
-      //        QFileInfo qfi(selectItem);
-      //        m_socket->receiveFile(qfi.fileName());
-      //    }
+      changeEnableButtons(false);
+      QMessageBox::information(this,"Download","Download started!");
+      connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+      transferThread->start();
+}
+void FileBox::uploadFinished()
+{
+    QMessageBox::information(this,"Upload","Upload is completed!");
+    ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+    changeEnableButtons(true);
+}
+void FileBox::downloadFinished()
+{
+    QMessageBox::information(this,"Download","Download is completed!");
+    changeEnableButtons(true);
+}
+void FileBox::moveOperationsFinished(const QString& operation)
+{
+    QMessageBox::information(this,operation,operation+" is completed!");
+    changeEnableButtons(true);
 }

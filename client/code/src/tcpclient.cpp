@@ -38,7 +38,7 @@ void TCPClient::sendFile(const QString &filePath)
       this->waitForReadyRead(-1);
       qDebug() << this->readLine(1000);
 }
-void TCPClient::folderTraversal(QString rootFolderPath, const QString &serverPath)
+void TCPClient::sendFolder(QString rootFolderPath, const QString &serverPath)
 {
       QDirIterator it(rootFolderPath, QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
       QDir rootFolder(rootFolderPath);
@@ -149,6 +149,34 @@ QString TCPClient::fileSystemRequest()
       // this->sendMessage("Ok\r\n");
       return pathFile;
 }
+
+void TCPClient::moveOperations(const QVector<QString> &files, const QVector<QString> &folders, const QString &message,const QString& user_folder)
+{
+    this->sendMessage("CLEAR\r\n");
+
+    this->waitForReadyRead(-1);
+    qDebug() << this->readLine(1000);
+
+    for (const auto &folder : qAsConst(folders))
+    {
+        this->sendMessage(message);
+        qDebug() << folder;
+        this->sendMessage(folder.right(folder.size() - user_folder.size()) + "\r\n");
+
+        this->waitForReadyRead(-1);
+        qDebug() << this->readLine(1000);
+    }
+
+    for (const auto &file : qAsConst(files))
+    {
+        this->sendMessage(message);
+        qDebug() << file;
+        this->sendMessage(file.right(file.size() - user_folder.size()) + "\r\n");
+        this->waitForReadyRead(-1);
+        qDebug() << this->readLine(1000);
+    }
+    emit moveOperationsFinished(message.trimmed());
+}
 void TCPClient::sendAll(const QVector<QString> &files, const QVector<QString> &folders, const QString &destPath)
 {
       QString serverPath = "";
@@ -166,8 +194,9 @@ void TCPClient::sendAll(const QVector<QString> &files, const QVector<QString> &f
       }
       for (const auto &folder : folders)
       {
-            folderTraversal(folder, serverPath);
+            sendFolder(folder, serverPath);
       }
+      emit uploadFinished();
 }
 
 void TCPClient::downloadRequest(const QVector<QString> &remoteFiles, const QVector<QString> &remoteFolders,
@@ -189,11 +218,11 @@ void TCPClient::downloadRequest(const QVector<QString> &remoteFiles, const QVect
       }
       auto timeInMSeconds = QString::number(QDateTime::currentMSecsSinceEpoch());
       this->receiveFile(localFolder + "/downloaded" + timeInMSeconds + ".zip");
+      emit downloadFinished();
 }
 void TCPClient::sendMessage(const QString &message)
 {
       this->write(message.toStdString().c_str());
       this->flush();
       this->waitForBytesWritten();
-      // qDebug()<<this->bytesToWrite();
 }
