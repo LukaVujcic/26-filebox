@@ -17,18 +17,28 @@ class TCPClient : public QTcpSocket
       void sendAll(const QVector<QString>& files, const QVector<QString>& folders, const QString& serverPath = "");
       void downloadRequest(const QVector<QString>& remoteFiles, const QVector<QString>& remoteFolders,
                            const QString& localFolder, const QString& rootPath);
+      void folderRequest(const QString& pathRemote, const QString& rootPath);
+      void renameRequest(const QString& pathRemote, const QString& rootPath, const QString& newName);
+      void pasteRequest(const QString& pathRemote);
       QString fileSystemRequest();
+      void multiSelect(const QVector<QString>& files, const QVector<QString>& folders,const QString&message,const QString& user_folder);
 
      private:
-      void folderTraversal(QString rootFolderPath, const QString& serverPath);
+      void sendFolder(QString rootFolderPath, const QString& serverPath);
       void sendFile(const QString& filePath);
       void uploadRequest(const QString& pathLocal, const QString& pathRemote);
       void newFolderRequest(const QString& pathRemote, const QString& name);
-      void sendFolder(const QString& path);
       void receiveFile(const QString& filePath);
      private slots:
       void connected();
       void disconnected();
+     signals:
+         void uploadFinished();
+         void downloadFinished();
+         void multiSelectFinished(const QString& operation);
+         void newFolderFinished();
+         void renameFinished();
+         void pasteFinished();
 };
 
 #endif  // TCPCLIENT_H

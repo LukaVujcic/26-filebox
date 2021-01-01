@@ -1,7 +1,6 @@
 #include "filebox.h"
 #include "tcpclient.h"
 #include "ui_filebox.h"
-
 #include <QMessageBox>
 
 FileBox::FileBox(QWidget *parent) : QWidget(parent), ui(new Ui::FileBox)
@@ -16,6 +15,8 @@ FileBox::FileBox(QWidget *parent) : QWidget(parent), ui(new Ui::FileBox)
       connect(ui->pbPaste, &QPushButton::clicked, this, &FileBox::pbPaste_clicked);
       connect(ui->pbRename, &QPushButton::clicked, this, &FileBox::pbRename_clicked);
 
+
+     // connect(m_socket, &TCPClient::moveOperationsFinished, this, &FileBox::moveOperationsFinished);
       ui->twLocalFiles->setViewFolder("");
       ui->twRemoteFiles->setViewFolder("");
 
@@ -46,17 +47,36 @@ void FileBox::setFormLogin(Login *login) { m_login = login; }
 void FileBox::setSocket(TCPClient *socket)
 {
       m_socket = socket;
+      transferThread = new QThread();
+      m_socket->moveToThread(transferThread);
       ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+      connect(m_socket, &TCPClient::multiSelectFinished, this, &FileBox::multiSelectFinished);
+      connect(m_socket, &TCPClient::uploadFinished, this, &FileBox::uploadFinished);
+      connect(m_socket, &TCPClient::downloadFinished, this, &FileBox::downloadFinished);
+      connect(m_socket, &TCPClient::newFolderFinished, this, &FileBox::newFolderFinished);
+      connect(m_socket, &TCPClient::renameFinished, this, &FileBox::renameFinished);
+      connect(m_socket, &TCPClient::pasteFinished, this, &FileBox::pasteFinished);
 }
 
-void FileBox::setUserFolder(QString username)
+void FileBox::setUser(QString username)
 {
     m_userFolder = QDir("filesystem-" + username + "/filesystem").absolutePath();
     m_username = username;
 }
 
+void FileBox::changeEnableButtons(bool enable)
+{
+    QList<QPushButton *> buttons = findChildren<QPushButton *>();
+    for (const auto&button:buttons)
+    {
+        button->setEnabled(enable);
+    }
+}
+
 void FileBox::pbUpload_clicked()
 {
+
+
       // TCPClient socket("127.0.0.1", 5000);
       auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
       auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
@@ -76,121 +96,76 @@ void FileBox::pbUpload_clicked()
             QMessageBox::warning(this, "Upload", "Nothing selected for upload!");
             return;
       }
+      //changeEnabledButtons(false);
       if (remoteFolders.size() == 1)
       {
             auto rootPath =
                 dynamic_cast<QFileSystemModel *>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
             auto serverPath = remoteFolders[0].right(remoteFolders[0].length() - rootPath.length());
-            m_socket->sendAll(localFiles, localFolders, serverPath);
+             transferThread= QThread::create(std::bind(&TCPClient::sendAll,m_socket,localFiles,localFolders,serverPath));
       }
       if (remoteFolders.size() == 0)
       {
-            m_socket->sendAll(localFiles, localFolders);
+            transferThread= QThread::create(std::bind(&TCPClient::sendAll,m_socket,localFiles,localFolders,""));
       }
+
+      changeEnableButtons(false);
+      ui->pbUpload->setStyleSheet("background: #800000; color: #333;");
+      QMessageBox::information(this,"Upload","Upload started!");
+      connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+      transferThread->start();
       //ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
-
-      /*socket.sendMessage("UPLOAD\r\n");
-      socket.sendMessage("C:\\Users\\Petar\\Desktop\\testSlanje.png\r\n");
-      socket.sendFile("C:\\Users\\Petar\\Desktop\\warning_1_filebox.png");
-
-      socket.waitForReadyRead(-1);
-      qDebug() << socket.readLine(1000);*/
-
-      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
-      // socket.sendAll(localFiles,localFolders);
-      // socket.close();
 }
 
 void FileBox::pbNewFolder_clicked()
 {
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
-      m_socket->sendMessage("NEW FOLDER\r\n");
-      qDebug() << "Creating new folder...";
-
-      m_socket->sendMessage("New folder\r\n");
-
       if (files.isEmpty() && (folders.size() == 1 || folders.isEmpty()))
       {
             QString destination = (folders.size() == 1) ? folders[0] : "";
+            //destination = destination.right(destination.size() - m_userFolder.size());
+            transferThread = QThread::create(std::bind(&TCPClient::folderRequest, m_socket, destination, m_userFolder));
 
-            qDebug() << destination;
+            changeEnableButtons(false);
 
-            m_socket->sendMessage(destination.right(destination.size() - m_userFolder.size()) + "\r\n");
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
+            ui->pbNewFolder->setStyleSheet("background: #800000; color: #333;");
+            connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+            transferThread->start();
       }
       else
       {
             qDebug() << "Please, select just one folder!";
       }
-
-      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 }
 
 void FileBox::pbCut_clicked()
 {
+
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+      transferThread=QThread::create(std::bind(&TCPClient::multiSelect,m_socket,files,folders,"CUT\r\n",m_userFolder));
+      changeEnableButtons(false);
 
-      m_socket->sendMessage("CLEAR\r\n");
-
-      m_socket->waitForReadyRead(-1);
-      qDebug() << m_socket->readLine(1000);
-
-      for (const auto &folder : qAsConst(folders))
-      {
-            m_socket->sendMessage("CUT\r\n");
-            qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
-
-      for (const auto &file : qAsConst(files))
-      {
-            m_socket->sendMessage("CUT\r\n");
-            qDebug() << file;
-            m_socket->sendMessage(file.right(file.size() - m_userFolder.size()) + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
+      ui->pbCut->setStyleSheet("background: #800000; color: #333;");
+      connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+      transferThread->start();
 }
 
 void FileBox::pbCopy_clicked()
 {
-      auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+    //connect(m_socket, &TCPClient::moveOperationsFinished, this, &FileBox::moveOperationsFinished);
+    auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+    transferThread=QThread::create(std::bind(&TCPClient::multiSelect,m_socket,files,folders,"COPY\r\n",m_userFolder));
+    changeEnableButtons(false);
 
-      m_socket->sendMessage("CLEAR\r\n");
-
-      m_socket->waitForReadyRead(-1);
-      qDebug() << m_socket->readLine(1000);
-
-      for (const auto &folder : qAsConst(folders))
-      {
-            m_socket->sendMessage("COPY\r\n");
-            qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
-
-      for (const auto &file : qAsConst(files))
-      {
-            m_socket->sendMessage("COPY\r\n");
-            qDebug() << file;
-            m_socket->sendMessage(file + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
-      }
+    ui->pbCopy->setStyleSheet("background: #800000; color: #333;");
+    connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+    transferThread->start();
 }
 
 void FileBox::pbPaste_clicked()
 {
-      m_socket->sendMessage("PASTE\r\n");
+      //m_socket->sendMessage("PASTE\r\n");
 
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
@@ -202,85 +177,79 @@ void FileBox::pbPaste_clicked()
 
             qDebug() << destination;
 
-            m_socket->sendMessage(destination);
+            transferThread=QThread::create(std::bind(&TCPClient::pasteRequest,m_socket,destination));
+            changeEnableButtons(false);
+
+            ui->pbPaste->setStyleSheet("background: #800000; color: #333;");
+            connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+            transferThread->start();
+            //m_socket->sendMessage(destination);
       }
       else
       {
             QMessageBox::warning(this, "Paste", "Please, select just one folder!");
       }
 
-      m_socket->waitForReadyRead(-1);
+      /*m_socket->waitForReadyRead(-1);
       qDebug() << m_socket->readLine(1000);
 
-      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);*/
 }
 
 void FileBox::pbDelete_clicked()
 {
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
-      for (const auto &folder : qAsConst(folders))
+      if(folders.size() + files.size() > 0)
       {
-            m_socket->sendMessage("DELETE\r\n");
-            qDebug() << folder;
-            m_socket->sendMessage(folder.right(folder.size() - m_userFolder.size()) + "\r\n");
+          transferThread=QThread::create(std::bind(&TCPClient::multiSelect,m_socket,files,folders,"DELETE\r\n",m_userFolder));
+          changeEnableButtons(false);
 
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
+          ui->pbDelete->setStyleSheet("background: #800000; color: #333;");
+          connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+          transferThread->start();
       }
-
-      for (const auto &file : qAsConst(files))
+      else
       {
-            m_socket->sendMessage("DELETE\r\n");
-            qDebug() << file;
-            m_socket->sendMessage(file.right(file.size() - m_userFolder.size()) + "\r\n");
-
-            m_socket->waitForReadyRead(-1);
-            qDebug() << m_socket->readLine(1000);
+          QMessageBox::warning(this, "Delete", "Please, select at least one file!");
       }
-
-      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
 }
 void FileBox::pbRename_clicked()
 {
-      if(ui->txtEdit->toPlainText().size() == 0){
+      QString newName = ui->txtEdit->toPlainText();
+
+      if(newName.size() == 0){
           QMessageBox::warning(this, "Rename", "Please, type new name!");
           return;
       }
-
-      m_socket->sendMessage("RENAME\r\n");
 
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
 
       if (folders.size() == 1 && files.isEmpty())
       {
             qDebug() << folders[0];
-            m_socket->sendMessage(folders[0].right(folders[0].size() - m_userFolder.size()) + "\r\n");
+            transferThread=QThread::create(std::bind(&TCPClient::renameRequest,m_socket,folders[0],m_userFolder,newName));
       }
       else if (files.size() == 1 && folders.isEmpty())
       {
             qDebug() << files[0];
-            m_socket->sendMessage(files[0].right(files[0].size() - m_userFolder.size()) + "\r\n");
+            transferThread=QThread::create(std::bind(&TCPClient::renameRequest,m_socket,files[0],m_userFolder,newName));
       }
       else
       {
             // qDebug() << "Lose selektovanje";
             QMessageBox::warning(this, "Rename", "Please, select just one file!");
-            m_socket->sendMessage("ERROR\r\n");
             return;
       }
 
-      m_socket->sendMessage(ui->txtEdit->toPlainText().trimmed() + "\r\n");
+      changeEnableButtons(false);
 
-      m_socket->waitForReadyRead(-1);
-      qDebug() << m_socket->readLine(1000);
-
-      ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+      ui->pbRename->setStyleSheet("background: #800000; color: #333;");
+      connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+      transferThread->start();
 }
-
 void FileBox::pbDownload_clicked()
 {
-      // qDebug()<<QDateTime::currentMSecsSinceEpoch();
       auto [remoteFolders, remoteFiles] = ui->twRemoteFiles->getSelectedFiles();
       auto [localFolders, localFiles] = ui->twLocalFiles->getSelectedFiles();
       if (localFiles.size() > 0)
@@ -294,23 +263,64 @@ void FileBox::pbDownload_clicked()
             return;
       }
       auto rootPath = dynamic_cast<QFileSystemModel *>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-      m_socket->downloadRequest(remoteFiles, remoteFolders, localFolders[0], rootPath);
+      transferThread= QThread::create(std::bind(&TCPClient::downloadRequest,m_socket,remoteFiles,remoteFolders,localFolders[0],rootPath));
 
-      //    QVector<QString> selected;
-      //    selected=remoteFolders;
-      //    for (const auto& file:remoteFiles){
-      //        selected.push_back(file);
-      //    }
-      //    for (const auto& selectItem: selected)
-      //    {
-      //        //qDebug()<<folder;
-      //        //qDebug()<<dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-      //        auto
-      //        rootPath=dynamic_cast<QFileSystemModel*>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
-      //        auto itemPath=selectItem.right(selectItem.length()-rootPath.length());
-      //        qDebug()<<itemPath;
-      //        m_socket->downloadRequest(itemPath);
-      //        QFileInfo qfi(selectItem);
-      //        m_socket->receiveFile(qfi.fileName());
-      //    }
+      changeEnableButtons(false);
+      ui->pbDownload->setStyleSheet("background: #800000; color: #333;");
+      QMessageBox::information(this,"Download","Download started!");
+      connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
+      transferThread->start();
+}
+void FileBox::uploadFinished()
+{
+    QMessageBox::information(this,"Upload","Upload is completed!");
+    ui->pbUpload->setStyleSheet("");
+    ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+    changeEnableButtons(true);
+}
+void FileBox::downloadFinished()
+{
+    QMessageBox::information(this,"Download","Download is completed!");
+    ui->pbDownload->setStyleSheet("");
+    changeEnableButtons(true);
+}
+void FileBox::multiSelectFinished(const QString& operation)
+{
+    //QMessageBox::information(this,operation,operation+" is completed!");
+    if(!operation.compare("CUT"))
+    {
+        ui->pbCut->setStyleSheet("");
+    }
+    else if(!operation.compare("COPY"))
+    {
+        ui->pbCopy->setStyleSheet("");
+    }
+    else if(!operation.compare("DELETE"))
+    {
+        ui->pbDelete->setStyleSheet("");
+        ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+    }
+
+    changeEnableButtons(true);
+}
+
+void FileBox::newFolderFinished()
+{
+    ui->pbNewFolder->setStyleSheet("");
+    ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+    changeEnableButtons(true);
+}
+
+void FileBox::renameFinished()
+{
+    ui->pbRename->setStyleSheet("");
+    ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+    changeEnableButtons(true);
+}
+
+void FileBox::pasteFinished()
+{
+    ui->pbPaste->setStyleSheet("");
+    ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
+    changeEnableButtons(true);
 }

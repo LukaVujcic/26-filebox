@@ -38,7 +38,7 @@ void TCPClient::sendFile(const QString &filePath)
       this->waitForReadyRead(-1);
       qDebug() << this->readLine(1000);
 }
-void TCPClient::folderTraversal(QString rootFolderPath, const QString &serverPath)
+void TCPClient::sendFolder(QString rootFolderPath, const QString &serverPath)
 {
       QDirIterator it(rootFolderPath, QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
       QDir rootFolder(rootFolderPath);
@@ -77,6 +77,7 @@ void TCPClient::newFolderRequest(const QString &pathRemote, const QString &name)
       this->waitForReadyRead(-1);
       qDebug() << this->readLine(1000);
 }
+
 void TCPClient::receiveFile(const QString &filePath)
 {
       QFile f(QString(filePath).trimmed());
@@ -149,6 +150,37 @@ QString TCPClient::fileSystemRequest()
       // this->sendMessage("Ok\r\n");
       return pathFile;
 }
+
+void TCPClient::multiSelect(const QVector<QString> &files, const QVector<QString> &folders, const QString &message,const QString& user_folder)
+{
+    if(message.compare("DELETE\r\n") != 0)
+    {
+        this->sendMessage("CLEAR\r\n");
+
+        this->waitForReadyRead(-1);
+        qDebug() << this->readLine(1000);
+    }
+
+    for (const auto &folder : qAsConst(folders))
+    {
+        this->sendMessage(message);
+        qDebug() << folder;
+        this->sendMessage(folder.right(folder.size() - user_folder.size()) + "\r\n");
+
+        this->waitForReadyRead(-1);
+        qDebug() << this->readLine(1000);
+    }
+
+    for (const auto &file : qAsConst(files))
+    {
+        this->sendMessage(message);
+        qDebug() << file;
+        this->sendMessage(file.right(file.size() - user_folder.size()) + "\r\n");
+        this->waitForReadyRead(-1);
+        qDebug() << this->readLine(1000);
+    }
+    emit multiSelectFinished(message.trimmed());
+}
 void TCPClient::sendAll(const QVector<QString> &files, const QVector<QString> &folders, const QString &destPath)
 {
       QString serverPath = "";
@@ -166,8 +198,9 @@ void TCPClient::sendAll(const QVector<QString> &files, const QVector<QString> &f
       }
       for (const auto &folder : folders)
       {
-            folderTraversal(folder, serverPath);
+            sendFolder(folder, serverPath);
       }
+      emit uploadFinished();
 }
 
 void TCPClient::downloadRequest(const QVector<QString> &remoteFiles, const QVector<QString> &remoteFolders,
@@ -189,11 +222,46 @@ void TCPClient::downloadRequest(const QVector<QString> &remoteFiles, const QVect
       }
       auto timeInMSeconds = QString::number(QDateTime::currentMSecsSinceEpoch());
       this->receiveFile(localFolder + "/downloaded" + timeInMSeconds + ".zip");
+      emit downloadFinished();
 }
+
+void TCPClient::folderRequest(const QString &pathRemote, const QString& rootPath)
+{
+    this->sendMessage("NEW FOLDER\r\n");
+    this->sendMessage("New folder\r\n");
+    this->sendMessage(pathRemote.right(pathRemote.size() - rootPath.size()) + "\r\n");
+    //this->sendMessage(pathRemote + "\r\n");
+    this->waitForReadyRead(-1);
+    qDebug() << this->readLine(1000);
+    emit newFolderFinished();
+}
+
+void TCPClient::renameRequest(const QString &pathRemote, const QString& rootPath, const QString& newName)
+{
+    this->sendMessage("RENAME\r\n");
+
+    this->sendMessage(pathRemote.right(pathRemote.size() - rootPath.size()) + "\r\n");
+    this->sendMessage(newName.trimmed() + "\r\n");
+
+    this->waitForReadyRead(-1);
+    qDebug() << this->readLine(1000);
+    emit renameFinished();
+}
+
+void TCPClient::pasteRequest(const QString &pathRemote)
+{
+    this->write("PASTE\r\n");
+
+    this->sendMessage(pathRemote);
+
+    this->waitForReadyRead(-1);
+    qDebug() << this->readLine(1000);
+    emit pasteFinished();
+}
+
 void TCPClient::sendMessage(const QString &message)
 {
       this->write(message.toStdString().c_str());
       this->flush();
       this->waitForBytesWritten();
-      // qDebug()<<this->bytesToWrite();
 }
