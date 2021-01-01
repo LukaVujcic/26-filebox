@@ -27,7 +27,7 @@ class FileBox : public QWidget
 
       void setFormLogin(Login *l);
       void setSocket(TCPClient *socket);
-      void setUserFolder(QString username);
+      void setUser(QString username);
      private:
       Ui::FileBox *ui;
       TCPClient *m_socket;

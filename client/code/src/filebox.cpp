@@ -58,7 +58,7 @@ void FileBox::setSocket(TCPClient *socket)
       connect(m_socket, &TCPClient::pasteFinished, this, &FileBox::pasteFinished);
 }
 
-void FileBox::setUserFolder(QString username)
+void FileBox::setUser(QString username)
 {
     m_userFolder = QDir("filesystem-" + username + "/filesystem").absolutePath();
     m_username = username;
@@ -110,6 +110,7 @@ void FileBox::pbUpload_clicked()
       }
 
       changeEnableButtons(false);
+      ui->pbUpload->setStyleSheet("background: #800000; color: #333;");
       QMessageBox::information(this,"Upload","Upload started!");
       connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
       transferThread->start();
@@ -265,6 +266,7 @@ void FileBox::pbDownload_clicked()
       transferThread= QThread::create(std::bind(&TCPClient::downloadRequest,m_socket,remoteFiles,remoteFolders,localFolders[0],rootPath));
 
       changeEnableButtons(false);
+      ui->pbDownload->setStyleSheet("background: #800000; color: #333;");
       QMessageBox::information(this,"Download","Download started!");
       connect(transferThread,&QThread::finished,transferThread,&QThread::deleteLater);
       transferThread->start();
@@ -272,12 +274,14 @@ void FileBox::pbDownload_clicked()
 void FileBox::uploadFinished()
 {
     QMessageBox::information(this,"Upload","Upload is completed!");
+    ui->pbUpload->setStyleSheet("");
     ui->twRemoteFiles->getServerFilesystem(m_socket, m_username);
     changeEnableButtons(true);
 }
 void FileBox::downloadFinished()
 {
     QMessageBox::information(this,"Download","Download is completed!");
+    ui->pbDownload->setStyleSheet("");
     changeEnableButtons(true);
 }
 void FileBox::multiSelectFinished(const QString& operation)

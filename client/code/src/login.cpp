@@ -59,7 +59,7 @@ void Login::pbLogin_clicked()
 
       if (!answer.compare("CONTINUE"))
       {
-            qobject_cast<FileBox *>(parentWidget())->setUserFolder(username);
+            qobject_cast<FileBox *>(parentWidget())->setUser(username);
             qobject_cast<FileBox *>(parentWidget())->setSocket(socket);
             hide();
             parentWidget()->show();
