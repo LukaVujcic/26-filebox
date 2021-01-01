@@ -47,6 +47,9 @@ private slots:
       void pbDownload_clicked();
       void uploadFinished();
       void downloadFinished();
-      void moveOperationsFinished(const QString& operation);
+      void multiSelectFinished(const QString& operation);
+      void newFolderFinished();
+      void renameFinished();
+      void pasteFinished();
 };
 #endif  // FILEBOX_H

@@ -512,23 +512,22 @@ void TCPConnection::readyRead()
 
             qDebug() << input_name;
 
-            if (input_name.compare("ERROR\r\n") != 0)
+
+            try
             {
-                  try
-                  {
-                        const fs::path old_file_path{file_path.trimmed().toStdString()};
-                        const fs::path parent_path{old_file_path.parent_path()};
+                  const fs::path old_file_path{file_path.trimmed().toStdString()};
+                  const fs::path parent_path{old_file_path.parent_path()};
 
-                        const fs::path new_file_name{input_name.trimmed().toStdString()};
-                        const fs::path new_file_path{parent_path / new_file_name};
+                  const fs::path new_file_name{input_name.trimmed().toStdString()};
+                  const fs::path new_file_path{parent_path / new_file_name};
 
-                        rename(old_file_path, new_file_path);
-                  }
-                  catch (const std::exception& e)
-                  {
-                        qDebug() << e.what();
-                  }
+                  rename(old_file_path, new_file_path);
             }
+            catch (const std::exception& e)
+            {
+                  qDebug() << e.what();
+            }
+
 
             socket->write("OK\r\n");
             socket->flush();

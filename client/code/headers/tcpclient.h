@@ -17,8 +17,11 @@ class TCPClient : public QTcpSocket
       void sendAll(const QVector<QString>& files, const QVector<QString>& folders, const QString& serverPath = "");
       void downloadRequest(const QVector<QString>& remoteFiles, const QVector<QString>& remoteFolders,
                            const QString& localFolder, const QString& rootPath);
+      void folderRequest(const QString& pathRemote, const QString& rootPath);
+      void renameRequest(const QString& pathRemote, const QString& rootPath, const QString& newName);
+      void pasteRequest(const QString& pathRemote);
       QString fileSystemRequest();
-      void moveOperations(const QVector<QString>& files, const QVector<QString>& folders,const QString&message,const QString& user_folder);
+      void multiSelect(const QVector<QString>& files, const QVector<QString>& folders,const QString&message,const QString& user_folder);
 
      private:
       void sendFolder(QString rootFolderPath, const QString& serverPath);
@@ -32,7 +35,10 @@ class TCPClient : public QTcpSocket
      signals:
          void uploadFinished();
          void downloadFinished();
-         void moveOperationsFinished(const QString& operation);
+         void multiSelectFinished(const QString& operation);
+         void newFolderFinished();
+         void renameFinished();
+         void pasteFinished();
 };
 
 #endif  // TCPCLIENT_H
