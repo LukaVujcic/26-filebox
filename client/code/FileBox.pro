@@ -39,10 +39,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     ../resources/images/images.qrc
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/thirdPartyLibraries/zipper/build/release/ -lZipper
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/thirdPartyLibraries/zipper/build/debug/ -lZipper
-else:unix: LIBS += -L$$PWD/thirdPartyLibraries/zipper/build/ -lZipper
-
-INCLUDEPATH += $$PWD/thirdPartyLibraries/zipper/build
-DEPENDPATH += $$PWD/thirdPartyLibraries/zipper/build
+unix:!macx: LIBS += -lZipper

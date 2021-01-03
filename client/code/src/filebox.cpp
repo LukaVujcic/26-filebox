@@ -19,18 +19,20 @@ FileBox::FileBox(QWidget *parent) : QWidget(parent), ui(new Ui::FileBox)
      // connect(m_socket, &TCPClient::moveOperationsFinished, this, &FileBox::moveOperationsFinished);
       ui->twLocalFiles->setViewFolder("");
       ui->twRemoteFiles->setViewFolder("");
-
       ui->twRemoteFiles->hideColumn(1);
       ui->twRemoteFiles->setColumnWidth(0, 200);
       ui->twLocalFiles->setColumnWidth(0, 200);
+      m_socket=nullptr;
 }
 
 FileBox::~FileBox()
 {
       delete ui->twLocalFiles->model();
       delete ui->twRemoteFiles->model();
-
-      delete m_socket;
+      if (m_socket!=nullptr)
+      {
+          delete m_socket;
+      }
       delete ui;
 }
 
@@ -56,6 +58,7 @@ void FileBox::setSocket(TCPClient *socket)
       connect(m_socket, &TCPClient::newFolderFinished, this, &FileBox::newFolderFinished);
       connect(m_socket, &TCPClient::renameFinished, this, &FileBox::renameFinished);
       connect(m_socket, &TCPClient::pasteFinished, this, &FileBox::pasteFinished);
+      delete transferThread;
 }
 
 void FileBox::setUser(QString username)
@@ -261,6 +264,11 @@ void FileBox::pbDownload_clicked()
       {
             QMessageBox::warning(this, "Download", "Multiple folders selected! Please select at most one folder!");
             return;
+      }
+      if (localFolders.size()==0)
+      {
+          QMessageBox::warning(this, "Download", "Please select a folder!");
+          return;
       }
       auto rootPath = dynamic_cast<QFileSystemModel *>(ui->twRemoteFiles->model())->rootDirectory().absolutePath();
       transferThread= QThread::create(std::bind(&TCPClient::downloadRequest,m_socket,remoteFiles,remoteFolders,localFolders[0],rootPath));
