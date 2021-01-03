@@ -29,7 +29,6 @@ public:
     void upload_(QTcpSocket* socket,QString userFolder);
     void download_(QTcpSocket* socket, QString userFolder, const char* ZIPPER_LOCATION);
     void filesystem_(QTcpSocket* socket, QString userFolder, const char* ZIPPER_LOCATION);
-
     void register_(QTcpSocket* socket, QString users_login_info);
     void delete_(QTcpSocket* socket, QString userFolder);
     void new_folder_(QTcpSocket* socket, QString userFolder);
@@ -38,7 +37,7 @@ public:
     void login_(QTcpSocket* socket, QString USERS_LOGIN_INFO, QMap<QTcpSocket*, QString> users_map, QString& login);
     void copy_(QTcpSocket* socket, QString userFolder);
     void paste_(QTcpSocket* socket, QString userFolder);
-
+    void clear_(QTcpSocket* socket);
   const QString USERS_FOLDER = "../users/";
   const QString USERS_LOGIN_INFO = "../users/users.txt";
   const char* ZIPPER_LOCATION = "../users/ziptest.zip";

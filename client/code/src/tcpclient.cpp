@@ -93,7 +93,10 @@ void TCPClient::receiveFile(const QString &filePath)
             qDebug() << "open";
             return;
       }
+      qDebug()<<"1 start";
       this->waitForReadyRead(-1);
+      qDebug()<<"1 end";
+
       QString fileSizeStr = this->readLine(3000);
       bool flag = false;
       qint64 bytesFile = fileSizeStr.trimmed().toLongLong(&flag, 10);
@@ -107,7 +110,9 @@ void TCPClient::receiveFile(const QString &filePath)
             {
                   break;
             }
-            this->waitForReadyRead(-1);
+            qDebug()<<"\n\n2 start";
+            this->waitForReadyRead(1000);
+            qDebug()<<"2 end";
             if (this->bytesAvailable() > 0)
                   bytesRead = this->read(chunk, chunckSize);
             else
@@ -123,8 +128,8 @@ void TCPClient::receiveFile(const QString &filePath)
                   break;
             }
             f.write(static_cast<const char *>(chunk), bytesRead);
-            f.flush();
-            f.waitForBytesWritten(-1);
+ //           f.flush();
+            f.waitForBytesWritten(1000);
             // f.flush()
       }
       delete[] chunk;
@@ -232,7 +237,9 @@ void TCPClient::folderRequest(const QString &pathRemote, const QString& rootPath
     this->sendMessage(pathRemote.right(pathRemote.size() - rootPath.size()) + "\r\n");
     //this->sendMessage(pathRemote + "\r\n");
     this->waitForReadyRead(-1);
+    qDebug()<<"Pre readline-a"<<"\n";
     qDebug() << this->readLine(1000);
+    qDebug()<<"Posle readline-a"<<"\n";
     emit newFolderFinished();
 }
 
@@ -251,7 +258,6 @@ void TCPClient::renameRequest(const QString &pathRemote, const QString& rootPath
 void TCPClient::pasteRequest(const QString &pathRemote)
 {
     this->write("PASTE\r\n");
-
     this->sendMessage(pathRemote);
 
     this->waitForReadyRead(-1);
@@ -262,6 +268,6 @@ void TCPClient::pasteRequest(const QString &pathRemote)
 void TCPClient::sendMessage(const QString &message)
 {
       this->write(message.toStdString().c_str());
-      this->flush();
+//      this->flush();
       this->waitForBytesWritten();
 }

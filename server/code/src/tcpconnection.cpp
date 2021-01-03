@@ -53,6 +53,7 @@ bool TCPConnection::is_rename_request(QByteArray& msg) { return !QString(msg).co
 
 bool TCPConnection::is_clear_request(QByteArray& msg) { return !QString(msg).compare(("CLEAR\r\n")); }
 
+
 void display_files_in_folder(QString current_path, QString original_path, Zipper& zip, QString user)
 {
       QDir dir(current_path);
@@ -277,6 +278,7 @@ void TCPConnection::copy_(QTcpSocket *socket, QString userFolder)
     socket->waitForBytesWritten();
 }
 
+
 void TCPConnection::paste_(QTcpSocket *socket, QString userFolder)
 {
     socket->waitForReadyRead(1000);
@@ -314,7 +316,7 @@ void TCPConnection::paste_(QTcpSocket *socket, QString userFolder)
             {
                 std::uintmax_t n = fs::remove_all(file);
 
-                if (n == static_cast<uintmax_t>(-1)) qDebug() << "Nothing deleted";
+                if (n == static_cast<uintmax_t>(1000)) qDebug() << "Nothing deleted";
             }
 
             selected_files.clear();
@@ -327,6 +329,15 @@ void TCPConnection::paste_(QTcpSocket *socket, QString userFolder)
 
     socket->write("OK\r\n");
     //socket->flush();
+    socket->waitForBytesWritten();
+}
+
+void TCPConnection::clear_(QTcpSocket *socket)
+{
+    selected_files.clear();
+
+    socket->write("OK\r\n");
+    socket->flush();
     socket->waitForBytesWritten();
 }
 
@@ -348,7 +359,7 @@ void TCPConnection::sendFile(QString filePath, QTcpSocket* socket)
       qDebug()<<socket->write((message + "\r\n").toLocal8Bit().data());
       //qDebug()<<"write";
       //socket->flush();
-      socket->waitForBytesWritten(1000);
+      socket->waitForBytesWritten();
       while (true)
       {
             int bytesRead = file.read(chunk, chunckSize);
@@ -475,7 +486,7 @@ void TCPConnection::delete_(QTcpSocket *socket, QString userFolder)
         const fs::path file_name{file_path.trimmed().toStdWString()};
         std::uintmax_t n = fs::remove_all(file_name);
 
-        if (n == static_cast<uintmax_t>(-1))
+        if (n == static_cast<uintmax_t>(1000))
             qDebug() << "Nothing deleted";
         else
             qDebug() << "Deleted " << n << "files or directories";

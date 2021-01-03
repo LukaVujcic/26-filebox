@@ -106,6 +106,10 @@ void ClientWorker::run()
         {
             conn.cut_(socket, USERS_FOLDER);
         }
+        else if (conn.is_clear_request(REQUEST)) {
+            conn.clear_(socket);
+
+        }
 
     }
 
