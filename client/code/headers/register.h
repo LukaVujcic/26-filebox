@@ -26,5 +26,7 @@ class Register : public QWidget
       Ui::Register *ui;
 
       bool checkInput(QString &username, QString &password, QString &confirmPassword, QString &IPAddress);
+
+      void resetForm();
 };
 #endif  // REGISTER_H

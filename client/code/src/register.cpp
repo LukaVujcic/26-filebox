@@ -37,7 +37,7 @@ void Register::pbRegister_clicked()
 
       TCPClient socket(IPAddress, 5000);
 
-      if (!socket.isValid() || !socket.waitForConnected())
+      if (!socket.isValid() || !socket.waitForConnected(1000))
       {
             socket.close();
             ui->lblWarning->setText("Connection not established!");
@@ -57,11 +57,9 @@ void Register::pbRegister_clicked()
       }
       else if (!answer.compare("CONTINUE"))
       {
-            ui->lblWarning->setText("");
-            ui->leUsername->setText("");
-            ui->lePassword->setText("");
-            ui->leConfirmPassword->setText("");
-            ui->leIP->setText("");
+
+            resetForm();
+
 
             QMessageBox::information(this, "Register", "Registration was successful");
 
@@ -97,4 +95,13 @@ bool Register::checkInput(QString &username, QString &password, QString &confirm
       }
 
       return true;
+}
+
+void Register::resetForm()
+{
+    ui->lblWarning->setText("");
+    ui->leUsername->setText("");
+    ui->lePassword->setText("");
+    ui->leConfirmPassword->setText("");
+    ui->leIP->setText("");
 }

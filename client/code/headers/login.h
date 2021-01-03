@@ -37,5 +37,7 @@ class Login : public QWidget
       Register *m_register;
 
       void resetForm();
+
+      bool checkInput(QString &username, QString &password, QString &IPAddress);
 };
 #endif  // LOGIN_H

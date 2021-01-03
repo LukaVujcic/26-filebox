@@ -5,7 +5,7 @@ TCPClient::TCPClient(QString ip, quint16 port) : QTcpSocket()
       connect(this, SIGNAL(connected()), this, SLOT(connected()));
       connect(this, SIGNAL(disconnected()), this, SLOT(disconnected()));
       this->connectToHost(ip, port);
-      if (!this->waitForConnected())
+      if (!this->waitForConnected(3000))
       {
             qDebug() << "Time out! Connection not established!";
             return;
@@ -93,9 +93,8 @@ void TCPClient::receiveFile(const QString &filePath)
             qDebug() << "open";
             return;
       }
-      qDebug()<<"1 start";
+
       this->waitForReadyRead(-1);
-      qDebug()<<"1 end";
 
       QString fileSizeStr = this->readLine(3000);
       bool flag = false;
@@ -110,9 +109,8 @@ void TCPClient::receiveFile(const QString &filePath)
             {
                   break;
             }
-            qDebug()<<"\n\n2 start";
             this->waitForReadyRead(1000);
-            qDebug()<<"2 end";
+
             if (this->bytesAvailable() > 0)
                   bytesRead = this->read(chunk, chunckSize);
             else

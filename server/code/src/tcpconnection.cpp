@@ -448,8 +448,13 @@ void TCPConnection::register_(QTcpSocket* socket, QString users_login_info)
     hash.reset();
 
     QFile file(users_login_info);
-
-    if (checkUsername(username, file))
+    if(password.contains("\n"))
+    {
+        socket->write("ERROR");
+        //socket->flush(); //TODO: ovoga nije bilo!!!
+        socket->waitForBytesWritten();
+    }
+    else if(checkUsername(username, file))
     {
         socket->write("EXISTS");
         //socket->flush(); //TODO: ovoga nije bilo!!!

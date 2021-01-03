@@ -37,13 +37,14 @@ void Login::pbLogin_clicked()
       QString password = ui->lePassword->text();
       QString IPAddress = ui->leIP->text();
 
-      if (username.size() == 0) return;
-      if (password.size() == 0) return;
-      if (IPAddress.size() == 0) return;
+      if (!checkInput(username, password, IPAddress))
+      {
+            return;
+      }
 
       TCPClient *socket = new TCPClient(IPAddress, 5000);
 
-      if (!socket->isValid() || !socket->waitForConnected(1))
+      if (!socket->isValid() || !socket->waitForConnected(1000))
       {
             socket->close();
             ui->lblWarning->setText("Connection not established!");
@@ -80,4 +81,15 @@ void Login::resetForm()
       ui->lePassword->setText("");
       ui->leIP->setText("");
       ui->lblWarning->setText("");
+}
+
+bool Login::checkInput(QString &username, QString &password, QString &IPAddress)
+{
+      if (username.size() == 0 || password.size() == 0 || IPAddress.size() == 0)
+      {
+            ui->lblWarning->setText("All lines need to be filled");
+            return false;
+      }
+
+      return true;
 }
