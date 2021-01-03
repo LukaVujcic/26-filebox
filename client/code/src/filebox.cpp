@@ -138,7 +138,7 @@ void FileBox::pbNewFolder_clicked()
       }
       else
       {
-            qDebug() << "Please, select just one folder!";
+            QMessageBox::warning(this, "New Folder", "Please, select just one folder!");
       }
 }
 
@@ -146,6 +146,11 @@ void FileBox::pbCut_clicked()
 {
 
       auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+      if(folders.size() + files.size() == 0)
+      {
+          QMessageBox::warning(this, "Cut", "Please, select at least one file!");
+          return;
+      }
       transferThread=QThread::create(std::bind(&TCPClient::multiSelect,m_socket,files,folders,"CUT\r\n",m_userFolder));
       changeEnableButtons(false);
 
@@ -158,6 +163,11 @@ void FileBox::pbCopy_clicked()
 {
     //connect(m_socket, &TCPClient::moveOperationsFinished, this, &FileBox::moveOperationsFinished);
     auto [folders, files] = ui->twRemoteFiles->getSelectedFiles();
+    if(folders.size() + files.size() == 0)
+    {
+        QMessageBox::warning(this, "Copy", "Please, select at least one file!");
+        return;
+    }
     transferThread=QThread::create(std::bind(&TCPClient::multiSelect,m_socket,files,folders,"COPY\r\n",m_userFolder));
     changeEnableButtons(false);
 
