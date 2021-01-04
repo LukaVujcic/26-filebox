@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QString>
 #include <QTcpSocket>
-//#include <filesystemtreeview.h>
+
 class TCPClient : public QTcpSocket
 {
       Q_OBJECT

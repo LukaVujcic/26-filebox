@@ -93,7 +93,6 @@ void get_files_and_folders(QString current_path, QString& server_path, Zipper& z
             std::ifstream input1(file_info.filePath().toLocal8Bit().data());
             char* file_path = server_path.toLocal8Bit().data();
             zip.add(input1, file_path, zip.SaveHierarchy);
-            // free(file_path);
 
             return;
       }
@@ -104,7 +103,6 @@ void get_files_and_folders(QString current_path, QString& server_path, Zipper& z
       {
             char* dir_path = (server_path + "/").toLocal8Bit().data();
             zip.add(dir_path, zip.SaveHierarchy);
-            // free(dir_path);
 
             return;
       }
@@ -123,18 +121,9 @@ void TCPConnection::upload_(QTcpSocket *socket, QString userFolder){
 
     qDebug() << file_path;
 
-    //qDebug() << "Request: " << REQUEST << " file path: " << file_path << "\n";
     qDebug() << "File content: "
              << "\n";
     QFile f((userFolder + QString(file_path)).trimmed());
-
-    // QFile f(QString("C:/Users/bozam/Desktop/preko_mreze.txt").trimmed());
-
-    /*if(f.exists())
-            {
-                qDebug()<<"File Exists";
-                return;
-            }*/
 
     f.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
@@ -160,29 +149,26 @@ void TCPConnection::upload_(QTcpSocket *socket, QString userFolder){
         {
             total += bytesRead;
         }
-        // qDebug()<<bytesRead;
+
         if (bytesRead <= 0)
         {
             qDebug() << "bytesRead: " << bytesRead;
             break;
         }
         f.write(static_cast<const char*>(chunk), bytesRead);
-        //f.flush();
+
         f.waitForBytesWritten(1000);
-        // f.flush()
+
     }
 
-    // qDebug()<<"Total: "<<total;
-    // qDebug()<<"Nesto";
-    // qDebug()<<total<<"BYTES";
     qDebug() << socket->ConnectedState;
     delete[] chunk;
     f.close();
     qDebug() << "Pisanje se zavrsava"
              << "\n";
-    //        qDebug()<<socket->ConnectedState;
+
     qDebug() << socket->write("OK\r\n");
-    //socket->flush();
+
     socket->waitForBytesWritten(1000);
 }
 
@@ -227,7 +213,6 @@ void TCPConnection::login_(QTcpSocket* socket, QString USERS_LOGIN_INFO, QMap<QT
 
     username.replace("\n", "");
 
-    // pamtimo korisnika u mapi
     users_map[socket] = username;
 
 
@@ -245,13 +230,13 @@ void TCPConnection::login_(QTcpSocket* socket, QString USERS_LOGIN_INFO, QMap<QT
     {
         qDebug()<<"Korisnik postoji, login je moguc!";
         socket->write("CONTINUE");
-        //socket->flush(); // TODO: ovoga nije bilo!
+
         socket->waitForBytesWritten(100);
     }
     else
     {
         socket->write("ERROR");
-        //socket->flush(); // TODO: Ovoga nije bilo!
+
         socket->waitForBytesWritten(100);
     }
 
@@ -262,7 +247,6 @@ void TCPConnection::login_(QTcpSocket* socket, QString USERS_LOGIN_INFO, QMap<QT
 
 void TCPConnection::copy_(QTcpSocket *socket, QString userFolder)
 {
-    // selected_files.clear();
     cut_clicked = false;
     copy_clicked = true;
 
@@ -274,7 +258,7 @@ void TCPConnection::copy_(QTcpSocket *socket, QString userFolder)
     selected_files.emplace_back(file_path.trimmed().toStdWString());
 
     socket->write("OK\r\n");
-    //socket->flush();
+
     socket->waitForBytesWritten();
 }
 
@@ -328,7 +312,7 @@ void TCPConnection::paste_(QTcpSocket *socket, QString userFolder)
     }
 
     socket->write("OK\r\n");
-    //socket->flush();
+
     socket->waitForBytesWritten();
 }
 
@@ -343,28 +327,26 @@ void TCPConnection::clear_(QTcpSocket *socket)
 
 void TCPConnection::sendFile(QString filePath, QTcpSocket* socket)
 {
-      //auto* socket = static_cast<QTcpSocket*>(sender());
       qDebug()<<"Send file!";
       QFile file(filePath);
-      // qDebug()<<filePath;
+
       if (!file.open(QIODevice::ReadOnly)) return;
       const int chunckSize = 1024 * 1024 * 10;
       char* chunk = new char[chunckSize + 1];
       int total = 0;
       qint64 fileSize = file.size();
-      // qDebug()<<"fileSize: "<<fileSize;
+
       auto message = (QString::number(fileSize) + "\r\n");
-      // qDebug()<<"Poruka"<<(message+"\r\n").toLocal8Bit().data();
+
       qDebug()<<"pre-write";
       qDebug()<<socket->write((message + "\r\n").toLocal8Bit().data());
-      //qDebug()<<"write";
-      //socket->flush();
+
       socket->waitForBytesWritten();
       while (true)
       {
             int bytesRead = file.read(chunk, chunckSize);
             socket->write(static_cast<const char*>(chunk), bytesRead);
-            //socket->flush(); // TODO: ovoga nije bilo!!!
+
             socket->waitForBytesWritten();
             if (bytesRead == 0)
             {
@@ -451,19 +433,19 @@ void TCPConnection::register_(QTcpSocket* socket, QString users_login_info)
     if(password.contains("\n"))
     {
         socket->write("ERROR");
-        //socket->flush(); //TODO: ovoga nije bilo!!!
+
         socket->waitForBytesWritten();
     }
     else if(checkUsername(username, file))
     {
         socket->write("EXISTS");
-        //socket->flush(); //TODO: ovoga nije bilo!!!
+
         socket->waitForBytesWritten();
     }
     else
     {
         socket->write("CONTINUE");
-        //socket->flush(); // TODO: ovoga nije bilo!!!
+
         socket->waitForBytesWritten();
         file.seek(file.size());
         QString line = username + " " + password + "\n";
@@ -486,8 +468,6 @@ void TCPConnection::delete_(QTcpSocket *socket, QString userFolder)
 
     try
     {
-        // delete izdvojiti u posebnu metodu koja ce se pozivati ovde i u paste funkciji
-
         const fs::path file_name{file_path.trimmed().toStdWString()};
         std::uintmax_t n = fs::remove_all(file_name);
 
@@ -503,7 +483,7 @@ void TCPConnection::delete_(QTcpSocket *socket, QString userFolder)
 
     socket->write("OK\r\n");
     qDebug()<<"Pre slanja!"<<"\n";
-    //socket->flush();
+
     socket->waitForBytesWritten();
     qDebug()<<"Nakon slanja!"<<"\n";
     qDebug()<<"********************************************************************************************\n";
@@ -519,11 +499,6 @@ void TCPConnection::new_folder_(QTcpSocket* socket, QString userFolder)
 
     qDebug()<<path<<"\n";
 
-    // std::string new_folder {"New folder"};
-
-    // qDebug() << name;
-    // std::string new_folder = name.toStdString();
-
     const fs::path parent_path{path.trimmed().toStdWString()};
     const fs::path folder_path{parent_path / new_folder};
 
@@ -534,8 +509,6 @@ void TCPConnection::new_folder_(QTcpSocket* socket, QString userFolder)
     }
     else
     {
-        // Kako cuvati sledecu slobodnu vrednost, a da ne pocinje uvek od 2?
-        // Problem sa magicnim promenljivama...
         unsigned start = 2;
 
         while (start <= ULONG_MAX)
@@ -554,13 +527,10 @@ void TCPConnection::new_folder_(QTcpSocket* socket, QString userFolder)
                 break;
             }
         }
-        // qDebug() << "****Failed creating folder (folder exists)!****";
     }
     qDebug()<<"NEW FOLDER COnnected state before: "<<socket->ConnectedState;
     qDebug() << socket->write("OK\r\n");
     qDebug()<<"NEW FOLDER COnnected state after: "<<socket->ConnectedState;
-
-    //    socket->flush();
 
     qDebug()<<"NEW FOLDER COnnected wait state before: "<<socket->ConnectedState;
     socket->waitForBytesWritten(10000);
@@ -597,7 +567,7 @@ void TCPConnection::rename_(QTcpSocket *socket, QString userFolder)
 
 
     socket->write("OK\r\n");
-    //socket->flush();
+
     socket->waitForBytesWritten();
 }
 
@@ -614,7 +584,7 @@ void TCPConnection::cut_(QTcpSocket* socket, QString userFolder)
     selected_files.emplace_back(file_path.trimmed().toStdWString());
 
     socket->write("OK\r\n");
-    //socket->flush();
+
     socket->waitForBytesWritten();
 }
 

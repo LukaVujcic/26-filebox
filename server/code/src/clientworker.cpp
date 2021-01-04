@@ -37,7 +37,7 @@ void ClientWorker::run()
     while(true)
     {
         qDebug()<<"Cekam ready read ovde...";
-        //socket->flush();
+
         socket->waitForReadyRead(-1);
 
         if (socket->state() != socket->ConnectedState)
@@ -114,6 +114,6 @@ void ClientWorker::run()
     }
 
     qDebug()<<"Izlazim iz niti"<<QThread::currentThread()<<"\n";
-    emit task_done("DONE!");
+    emit task_done();
 }
 

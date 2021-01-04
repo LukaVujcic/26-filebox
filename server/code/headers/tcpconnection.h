@@ -54,11 +54,6 @@ public:
     void opened();
     void closed();
 
-
-//    virtual void bytesWritten(qint64 bytes);
-//    virtual void stateChanged(QAbstractSocket::SocketState socketState);
-//    virtual void error(QAbstractSocket::SocketError socketError);
-
    public:
     void readyRead(QTcpSocket *);
     bool is_upload_request(QByteArray& msg);
@@ -76,15 +71,7 @@ public:
       bool checkProfile(const QString& username, const QString& password, QFile& file);
       bool is_filesystem_request(QByteArray& msg);
       bool is_download_request(QByteArray& msg);
-    /*bool transfer(fs::path folder_path);
 
-    bool make_folder(fs::path folder_path);
-    bool cut();
-    bool copy(fs::path folder_path);
-    bool paste(fs::path folder_path);*/
-
-
-  // Da li mi treba ista ispod ovoga vise uopste?
   private slots:
     void on_task_done(QString status);
 

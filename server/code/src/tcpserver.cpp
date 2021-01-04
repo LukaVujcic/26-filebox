@@ -18,7 +18,7 @@ void TCPServer::incomingConnection(qintptr socketDescriptor)
     thread->start();
 }
 
-void TCPServer::on_task_done(QString message)
+void TCPServer::on_task_done()
 {
     qDebug()<<"Nit je zavrsila sa radom!"<<"\n";
 }

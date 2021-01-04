@@ -24,7 +24,7 @@ private:
     QStringList fortunes;
 
 private slots:
-    void on_task_done(QString message);
+    void on_task_done();
 
 };
 

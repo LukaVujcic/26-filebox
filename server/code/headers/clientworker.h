@@ -16,7 +16,7 @@ protected:
     void run() override;
 
 signals:
-    void task_done(QString status_message);
+    void task_done();
 
 private:
     void upload(QString userFolder);

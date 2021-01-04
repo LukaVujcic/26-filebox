@@ -134,10 +134,6 @@ void TCPClient::receiveFile(const QString &filePath)
       f.close();
       qDebug() << "Pisanje se zavrsava"
                << "\n";
-      //        qDebug()<<socket->ConnectedState;
-      // qDebug()<<this->write("OK\r\n");
-      // this->flush();
-      // this->waitForBytesWritten(1000);
 }
 
 QString TCPClient::fileSystemRequest()
@@ -150,7 +146,7 @@ QString TCPClient::fileSystemRequest()
       }
       this->sendMessage("FILESYSTEM\r\n");
       this->receiveFile(pathFile);
-      // this->sendMessage("Ok\r\n");
+
       return pathFile;
 }
 
@@ -233,7 +229,6 @@ void TCPClient::folderRequest(const QString &pathRemote, const QString& rootPath
     this->sendMessage("NEW FOLDER\r\n");
     this->sendMessage("New folder\r\n");
     this->sendMessage(pathRemote.right(pathRemote.size() - rootPath.size()) + "\r\n");
-    //this->sendMessage(pathRemote + "\r\n");
     this->waitForReadyRead(-1);
     qDebug()<<"Pre readline-a"<<"\n";
     qDebug() << this->readLine(1000);
@@ -266,6 +261,6 @@ void TCPClient::pasteRequest(const QString &pathRemote)
 void TCPClient::sendMessage(const QString &message)
 {
       this->write(message.toStdString().c_str());
-//      this->flush();
+
       this->waitForBytesWritten();
 }
