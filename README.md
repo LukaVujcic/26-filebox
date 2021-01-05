@@ -10,9 +10,10 @@ Klijent-server aplikacija koja simulira rad cloud servisa za čuvanje podataka.
 
 [Čuvanje perzistentnih podataka](https://gitlab.com/matf-bg-ac-rs/course-rs/projects-2020-2021/26-filebox/-/wikis/%C4%8Cuvanje-perzistentnih-podataka)
 
-![](https://gitlab.com/matf-bg-ac-rs/course-rs/projects-2020-2021/26-filebox/-/wikis/uploads/1ae2a8aa64babac878adf7e31f589a21/fileBox.png)
-
 [Link do video prezentacije](https://www.youtube.com/watch?v=z3Ckzl-w6WI)
+
+
+![](https://gitlab.com/matf-bg-ac-rs/course-rs/projects-2020-2021/26-filebox/-/wikis/uploads/1ae2a8aa64babac878adf7e31f589a21/fileBox.png)
 
 
 
